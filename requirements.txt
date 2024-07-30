@@ -15,7 +15,7 @@ coverage
 mat73~=0.63
 tqdm>=4.32.0
 torch>=1.7.1
-numpy
+numpy==1.26.4
 mne>=0.21.1
 pandas~=2.2.2
 py7zr~=0.21.0
@@ -35,7 +35,6 @@ pylsl~=1.16.2
 # pip install psychopy failed on mac[py37, py38], due to wxpython build problem
 wxPython==4.1.1; sys_platform == 'darwin' and python_version <= '3.8'
 pyglet==1.5.27; sys_platform == 'darwin' and python_version <= '3.8'
-psychopy == 2022.1.4
 mne-bids
 
 Sphinx~=7.3.7
