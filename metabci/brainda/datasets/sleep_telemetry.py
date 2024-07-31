@@ -508,7 +508,8 @@ class Sleep_telemetry(Sleep_telemetry_data):
                            force_update: bool = False,
                            update_path: Optional[Union[str, Path]] = None,
                            proxies: Optional[Dict[str, str]] = None,
-                           verbose: Optional[Union[bool, str, int]] = None) \
+                           verbose: Optional[Union[bool, str, int]] = None,
+                           num_classes: Optional[int] = 5,) \
             -> list:
         """
             Read data from .npz files saved in the specified path for specified subjects.
@@ -544,6 +545,7 @@ class Sleep_telemetry(Sleep_telemetry_data):
 
         res_fnames = glob.glob(os.path.join(update_path, "*.npz"))
         res_fnames = np.asarray(res_fnames)
+
         read_datas = None
         labels = None
         for id in subjects:
@@ -558,15 +560,26 @@ class Sleep_telemetry(Sleep_telemetry_data):
                 read_datas = np.concatenate((read_datas, read_data), axis=0)
                 labels = np.concatenate((labels, label), axis=0)
             labels = np.array(labels)
+        if num_classes ==2:
+            # 将1,2,3,4视为一类，区分0，变成二分类任务
+            labels = [0 if label == 0 else 1 for label in labels]
+
+        if num_classes ==3:
+            # 将1,2,3视为一类，区分0和4，变成三分类任务
+            labels = [0 if label == 0 else 2 if label == 4 else 1 for label in labels]
+
+        if num_classes ==4:
+            # 将1,2视为一类，区分0和3和4，变成四分类任务
+            labels = [0 if label == 0 else 1 if label in [1, 2] else 2 if label == 3 else 3 for label in labels]
         read_datas = read_datas.transpose(0, 2, 1)
         return [labels, read_datas]
 
 
 if __name__ == "__main__":
     path = r'C:\Users\86130\Desktop\ST'
-    dataPath = r'C:\Users\86130\Desktop\ST\EEG Fpz-Cz'
+    dataPath = r'D:\sleep-data\ST\EEG Fpz-Cz'
     sleep = Sleep_telemetry(dataPath=path)
-    sleep.save_processed_data(update_path=dataPath)
+    # sleep.save_processed_data(update_path=dataPath)
     data = sleep.get_processed_data(subjects=[0], update_path=dataPath)
     labels, read_datas = data[0], data[1]
-    print(read_datas)
+    print(labels[:300])

@@ -12,7 +12,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 
-def plot_confusion_matrix(readPath, labels):
+def plot_confusion_matrix(readPath:str, labels):
     """
     读取并可视化混淆矩阵
 

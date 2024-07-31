@@ -4,6 +4,7 @@
 # Date: 2024/7/25
 # License: MIT License
 import os
+from datetime import datetime
 
 import numpy as np
 import pandas as pd
@@ -14,6 +15,7 @@ from metabci.brainda.algorithms.deep_learning import np_to_th
 from metabci.brainda.algorithms.deep_learning.AttnSleep import AttnSleep
 from metabci.brainda.algorithms.utils.model_selection import EnhancedStratifiedKFold
 from metabci.brainda.datasets.sleep_cassette import SleepCassette
+from metabci.brainda.datasets.sleep_telemetry import Sleep_telemetry
 
 
 def cross_train_model(datas, n_splits=5, model_params=(1, 5), model_selection=EnhancedStratifiedKFold):
@@ -59,8 +61,6 @@ def cross_train_model(datas, n_splits=5, model_params=(1, 5), model_selection=En
     # Compute and save the confusion matrix
     all_labels = np.array(all_labels).astype(int)
     all_pres = np.array(all_pres).astype(int)
-    print(all_labels)
-    print(all_pres)
     # r = classification_report(all_labels, all_pres, digits=5, output_dict=True)
     cm = confusion_matrix(all_labels, all_pres)
     # df = pd.DataFrame(r)
@@ -70,20 +70,29 @@ def cross_train_model(datas, n_splits=5, model_params=(1, 5), model_selection=En
     # file_name = self.config["name"] + "_classification_report.xlsx"
     # report_Save_path = os.path.join(save_dir, file_name)
     # df.to_excel(report_Save_path)
-    cm_file_name = "confusion_matrix.torch"
-    current_file_path = os.path.abspath(__file__)
-    current_dir = os.path.dirname(current_file_path)
-    cm_Save_path = os.path.join(current_dir, cm_file_name)
+    now = datetime.now()
+    timestamp = now.strftime("%Y%m%d_%H%M%S")  # 格式化时间戳
+    folder_name = "confusion_matrix"
+
+    # 创建文件夹（如果不存在的话）
+    if not os.path.exists(folder_name):
+        os.makedirs(folder_name)
+
+    # 生成保存路径
+    cm_file_name = f"confusion_matrix_{timestamp}.torch"
+    cm_Save_path = os.path.join(folder_name, cm_file_name)
+
+    # 保存混淆矩阵
     torch.save(cm, cm_Save_path)
-    print("Confusion matrix saved.")
+    print(f"Confusion matrix saved as {cm_file_name} in the folder {folder_name}.")
 
 
 def main():
     npz_path = r'/data/xingjain.zhang/sleep/1_npzdata/SC/01_SC_FPZ-Cz'
-    sleep = SleepCassette()
-    subjects = list(range(49))
-    data = sleep.get_processed_data(update_path=npz_path, subjects=subjects)
-    cross_train_model(data, model_params=(1, 5))
+    sleep = Sleep_telemetry(npz_path)
+    subjects = list(range(30))
+    data = sleep.get_processed_data(update_path=npz_path, subjects=subjects,num_classes=2)
+    cross_train_model(data, model_params=(1, 2))
 
 
 if __name__ == '__main__':

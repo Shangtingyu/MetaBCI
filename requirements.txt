@@ -14,7 +14,7 @@ coverage
 # 3rd party packages
 mat73~=0.63
 tqdm>=4.32.0
-torch>=1.7.1
+torch==2.3.1
 numpy==1.26.4
 mne>=0.21.1
 pandas~=2.2.2
