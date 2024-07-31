@@ -146,11 +146,10 @@ class Sleep_telemetry(BaseDataset):
             local path of the target file
         """
 
-        #  input your path of sleep-telemetry folder
         dataPath = self.dataPath
         if subject not in self.subjects:
             raise ValueError("Invalid subject id")
-        psg_fnames = glob.glob(os.path.join(dataPath, "*PSG.edf"))  # eeg date
+        psg_fnames = glob.glob(os.path.join(dataPath, "*PSG.edf"))
         subject_id = int(subject)
         path = psg_fnames[subject_id]
 
@@ -161,10 +160,8 @@ class Sleep_telemetry(BaseDataset):
     ) -> dict[str, dict[str, RawEDF]]:
 
         try:
-            # get path from location
             dests = self.data_path(subject)
         except:
-            # get path from url
             dests = self.data_path_url(subject)
         sess = dict()
         for isess, run_dests in enumerate(dests):
@@ -194,14 +191,12 @@ class Sleep_telemetry(BaseDataset):
             tuple: (data_list, label) where data_list is from 'psg_filenames.txt'
                    and label is from 'Hypnogram_filenames.txt'.
         """
-        # Get the absolute path to the current file
         current_file = os.path.abspath(__file__)
         project_root = current_file
 
-        # Find the project root directory
         while not os.path.isfile(os.path.join(project_root, 'setup.py')):
             parent_dir = os.path.dirname(project_root)
-            if parent_dir == project_root:  # Reached the root directory
+            if parent_dir == project_root:
                 raise FileNotFoundError("setup.py not found in any parent directory")
             project_root = parent_dir
 
@@ -270,7 +265,6 @@ class Sleep_telemetry(BaseDataset):
         if subject not in self.subjects:
             raise ValueError("Invalid subject id")
         ann_fnames = glob.glob(os.path.join(dataPath, "*Hypnogram.edf"))
-        # label
         subject_id = int(subject)
         path = ann_fnames[subject_id]
         return [[path]]
@@ -428,6 +422,7 @@ class Sleep_telemetry(BaseDataset):
                 select_idx = np.setdiff1d(np.arange(len(raw_ch_df)), remove_idx)
             else:
                 select_idx = np.arange(len(raw_ch_df))
+
             label_idx = np.hstack(label_idx)
             select_idx = np.intersect1d(select_idx, label_idx)
             if len(label_idx) > len(select_idx):
@@ -448,15 +443,18 @@ class Sleep_telemetry(BaseDataset):
 
             if len(raw_ch) % (EPOCH_SEC_SIZE * sampling_rate) != 0:
                 raise Exception("Raw data not divisible by 30S")
+
             n_epochs = int(len(raw_ch) / (EPOCH_SEC_SIZE * sampling_rate))
+
             x = np.asarray(np.split(raw_ch, n_epochs)).astype(np.float32)
             y = labels.astype(np.int32)
+
             assert len(x) == len(y)
             try:
-                filename = ntpath.basename(self.data_path(subject)[0][0]).replace("-PSG.", ".npz")
+                filename = ntpath.basename(self.data_path(subject)[0][0]).replace("-PSG.edf", ".npz")
             except Exception as e:
                 a = self.data_path_url(subject)[0][0]
-                filename = ntpath.basename(a).replace("-PSG.", ".npz")
+                filename = ntpath.basename(a).replace("-PSG.edf", ".npz")
             save_dict = {
                 "x": x,
                 "y": y,
@@ -524,11 +522,14 @@ class Sleep_telemetry(BaseDataset):
 
         if num_classes == 2:
             labels = [0 if label == 0 else 1 for label in labels]
+
         if num_classes == 3:
             labels = [0 if label == 0 else 2 if label == 4 else 1 for label in labels]
+
         if num_classes == 4:
             labels = [0 if label == 0 else 1 if label in [1, 2] else 2 if label == 3 else 3 for label in labels]
         read_datas = read_datas.transpose(0, 2, 1)
+
         return [labels, read_datas]
 
     @staticmethod
@@ -537,11 +538,18 @@ class Sleep_telemetry(BaseDataset):
         return len(npz_files)
 
 
+
 if __name__ == "__main__":
-    path = r'D:\sleep-data\ST'       # 原始数据raw_data存储的地址
-    dataPath = r'D:\sleep-data\ST'   # 数据预处理后的npz_data存储的地址
+    path = r'D:\sleep-data\ST'                    # 原始数据raw_data存储的地址
+    dataPath = r'D:\sleep-data\ST'                # 数据预处理后的npz_data存储的地址
+    subjects = [0, 1, 2]                          # None则代表处理所有被试
+    select_ch = ["EEG Fpz-Cz", "EEG Pz-Oz"]       # None则代表使用单通道"EEG Fpz-Cz"
+    num_classes = 5                               # 睡眠分期的分类任务
+
     sleep = Sleep_telemetry(dataPath=path)
-    sleep.save_processed_data(update_path=dataPath, subjects=[0,1,2])
-    data = sleep.get_processed_data(update_path=dataPath, subjects=[0,1,2])
+    sleep.save_processed_data(update_path=dataPath, subjects=subjects, select_ch=select_ch)
+    print("Data preprocessing is complete and data loading begins")
+    data = sleep.get_processed_data(update_path=dataPath, subjects=subjects, num_classes=num_classes)
     labels, read_datas = data[0], data[1]
-    print(labels[:300])
+    print("labels.size:" + str(labels.size))
+    print("datas.shape:" + str(read_datas.shape))
