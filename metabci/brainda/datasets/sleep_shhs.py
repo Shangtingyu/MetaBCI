@@ -80,14 +80,12 @@ class Sleep_SHHS(BaseDataset):
             raise ValueError("Invalid subject id")
         psg_fnames = glob.glob(os.path.join(dataPath, "*.edf"))  # eeg date
         subject_id = int(subject)
-        print(f'load subject :{subject_id}')
         path = psg_fnames[subject_id]
 
         return [[path]]
 
     def label_path(
             self, subject: Union[str, int]) -> List[List[Union[str, Path]]]:
-
         dataPath = self.dataPath
         if subject not in self.subjects:
             raise ValueError("Invalid subject id")
@@ -122,13 +120,12 @@ class Sleep_SHHS(BaseDataset):
         for isess, run_dests in enumerate(dests):
             runs = dict()
             for irun, run_file in enumerate(run_dests):
-                # Ensure .edf suffix is present
                 if not run_file.endswith('.edf'):
-                    raw, _ = self.readAnnotFiles(run_file)
-                    runs["run_{:d}".format(irun)] = raw
+                    raw, raw_bool = self.readAnnotFiles(run_file)
+                    runs["run_{:d}".format(irun)] = raw, raw_bool
                 sess["session_{:d}".format(isess)] = runs
             sess[f"session_{isess}"] = runs
-
+        print(f'load subject label :{subject}')
         return sess
 
     def _get_single_subject_data(
@@ -140,11 +137,11 @@ class Sleep_SHHS(BaseDataset):
         for isess, run_dests in enumerate(dests):
             runs = dict()
             for irun, run_file in enumerate(run_dests):
-                # run_file = run_file.with_suffix('.edf')
                 run_file = run_file
                 raw = read_raw_edf(run_file, preload=True, verbose=False, stim_channel=None)
                 runs["run_{:d}".format(irun)] = raw
             sess["session_{:d}".format(isess)] = runs
+        print(f'load subject data :{subject}')
         return sess
 
     def save_processed_data(self,
@@ -182,16 +179,25 @@ class Sleep_SHHS(BaseDataset):
             subjects = self.subjects
         EPOCH_SEC_SIZE = 30
         raws = super().get_data(subjects)
+        anns = self._get_label(subjects)
         sampling_rate = 100
         annotFiles = []
+        savePath_ch = update_path + '/'
+        for id, ch in enumerate(select_ch):
+            if id == 0:
+                savePath_ch = savePath_ch + ch
+            else:
+                savePath_ch = savePath_ch + '-' + ch
+        if not os.path.exists(savePath_ch):
+            os.makedirs(savePath_ch)
+        print(f'save in:{savePath_ch}')
         for i in subjects:
             annotFiles.append(self.label_path(i))
         for idx, subject in enumerate(subjects):
             rawdata = raws[subject]['session_0']['run_0']
             rawdata = rawdata.resample(sfreq=sampling_rate)
-            annotFrame, flag_del = self.readAnnotFiles(annotFiles[idx][0][0])
+            annotFrame, flag_del = anns[subject]['session_0']['run_0']
             if flag_del:
-                # 有未知标签跳过
                 continue
             result_df = annotFrame[['EventConcept']].copy()
             annotFrame['Duration'] = annotFrame['Duration'].astype(float)
@@ -205,19 +211,9 @@ class Sleep_SHHS(BaseDataset):
             durationSecond = len(labels) * 30
             data_idx = np.arange(durationSecond * sampling_rate, dtype=int)
             print("开始处理通道：{}".format(select_ch))
-            savePath_ch = update_path + '/'
-            for id, ch in enumerate(select_ch):
-                if id == 0:
-                    savePath_ch = savePath_ch + ch  # 第一次循环，不加'-'
-                else:
-                    savePath_ch = savePath_ch + '-' + ch  # 后续循环，加'-'
-            if not os.path.exists(savePath_ch):
-                os.makedirs(savePath_ch)
 
             channel_data = rawdata.to_data_frame()[select_ch]
             channel_data.set_index(np.arange(len(channel_data)))  # 设置为一个新的整数索引.
-
-            # 可能存在结尾EDF数据比标签数据短的情况（数据损坏导致的？）
             if data_idx[-1] > len(channel_data) - 1:
                 deleteIndx = data_idx[-1] - (len(channel_data) - 1)
                 deleteIndxEpoch = int(deleteIndx // (EPOCH_SEC_SIZE * sampling_rate))  # 取整
@@ -233,16 +229,12 @@ class Sleep_SHHS(BaseDataset):
                     data_idx = data_idx[:-deleteIndxRaw]
                 print("EDF数据比标签数据短, 删除最后{}个epoch".format(deleteIndxEpoch))
 
-            channel_data = channel_data.values[data_idx]  # 从原始数据中选择保留的indx对应的数值
-
-            # 再次验证数据能被30-s整除 epochs
+            channel_data = channel_data.values[data_idx]
             if len(channel_data) % (EPOCH_SEC_SIZE * sampling_rate) != 0:
                 raise Exception("原始数据不能被30S整除，有问题")
-
             n_epochs = int(len(channel_data) / (EPOCH_SEC_SIZE * sampling_rate))
             data_X = np.asarray(np.split(channel_data, n_epochs)).astype(np.float32)
             lable_y = labels.astype(np.int32)
-            # 确保数据和标签是对应的
             assert len(data_X) == len(lable_y)
             del channel_data
             filename = ntpath.basename(self.data_path(subject)[0][0]).split("/")[-1].replace(".edf", ".npz")
@@ -293,7 +285,6 @@ class Sleep_SHHS(BaseDataset):
         if subjects is None:
             subjects = self.subjects
         res_fnames = glob.glob(os.path.join(update_path, "*.npz"))
-        print(f'load file: {res_fnames}')
         res_fnames = np.asarray(res_fnames)
         read_datas = None
         labels = None
@@ -309,18 +300,16 @@ class Sleep_SHHS(BaseDataset):
                 read_datas = np.concatenate((read_datas, read_data), axis=0)
                 labels = np.concatenate((labels, label), axis=0)
             labels = np.array(labels)
-        if num_classes ==2:
-            # 将1,2,3,4视为一类，区分0，变成二分类任务
+        if num_classes == 2:
             labels = [0 if label == 0 else 1 for label in labels]
 
-        if num_classes ==3:
-            # 将1,2,3视为一类，区分0和4，变成三分类任务
+        if num_classes == 3:
             labels = [0 if label == 0 else 2 if label == 4 else 1 for label in labels]
 
-        if num_classes ==4:
-            # 将1,2视为一类，区分0和3和4，变成四分类任务
+        if num_classes == 4:
             labels = [0 if label == 0 else 1 if label in [1, 2] else 2 if label == 3 else 3 for label in labels]
         read_datas = read_datas.transpose(0, 2, 1)
+        labels = np.array(labels)
         return [labels, read_datas]
 
     def _get_label(
@@ -402,11 +391,12 @@ class Sleep_SHHS(BaseDataset):
 
         return df, flag_del
 
+
 if __name__ == "__main__":
     path = r'D:\sleep-data\shhs\edfs'
     dataPath = r'D:\sleep-data\shhs'
     sleep = Sleep_SHHS(dataPath=path)
-    sleep.save_processed_data(update_path=dataPath, select_ch=["EEG", "EOG(L)"],subjects=[0,1,2,3])
+    sleep.save_processed_data(update_path=dataPath, select_ch=["EEG", "EOG(L)"], subjects=[0])
     savepath = r'D:\sleep-data\shhs\EEG-EOG(L)'
     data = sleep.get_processed_data(subjects=[0], update_path=savepath)
     labels, read_datas = data[0], data[1]

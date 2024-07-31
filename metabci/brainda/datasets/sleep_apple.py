@@ -43,7 +43,7 @@ class Sleep_Apples(Sleep_SHHS):
 
     def __init__(self, dataPath: str = None):
         self.dataPath = dataPath
-        self.dataset_code = "shhs"
+        self.dataset_code = "apple"
         self.events = self._EVENTS
         self.channels = self._CHANNELS
         super().__init__(dataPath=dataPath)
@@ -158,7 +158,7 @@ class Sleep_Apples(Sleep_SHHS):
             annotFiles.append(self.label_path(i))
         for idx, subject in enumerate(subjects):
             rawdata = raws[subject]['session_0']['run_0']
-            annotdata = self.readAnnotFiles(annotFiles[idx][0][0])  # 类型是frame
+            annotdata = self.readAnnotFiles(annotFiles[idx][0][0])
             sampling_rate = int(rawdata.info['sfreq'])
             # 跳过采样率为200Hz
             if sampling_rate != 100:
@@ -203,7 +203,7 @@ if __name__ == "__main__":
     dataPath = r'D:\sleep-data\Apples\raw'
     path = r'D:\sleep-data\Apples\raw\C3_M2-ROC-LOC'
     sleep = Sleep_Apples(dataPath=dataPath)
-    sleep.save_processed_data(update_path=dataPath, select_ch=["C3_M2", "ROC", "LOC"])
+    sleep.save_processed_data(update_path=dataPath, select_ch=["C3_M2", "ROC", "LOC"],subjects=[0])
     data = sleep.get_processed_data(update_path=path, subjects=[0])
     labels, read_datas = data[0], data[1]
     print(read_datas)
