@@ -278,7 +278,6 @@ class Sleep_telemetry(Sleep_telemetry_data):
         subject_id = subject_id + 1
         psg, ann = self.read_data_name(subject_id)
         url_ann = "{:s}{:s}".format(self.sleep_URL, ann)
-        # print(url_ann)
         file_dest = mne_data_path(
             url_ann,
             "sleep_edf",
@@ -287,7 +286,6 @@ class Sleep_telemetry(Sleep_telemetry_data):
             force_update=force_update,
             update_path=update_path,
         )
-        print("file_dest: " + str(file_dest))
         return [[file_dest]]
 
     def label_path(
@@ -428,7 +426,6 @@ class Sleep_telemetry(Sleep_telemetry_data):
                 continue
             try:
                 ann = read_annotations(self.label_path(subject)[0][0])
-                print(ann)
             except Exception as e:
                 ann = read_annotations(self.label_path_url(subject)[0][0])
             remove_idx = []
@@ -576,8 +573,8 @@ class Sleep_telemetry(Sleep_telemetry_data):
 
 
 if __name__ == "__main__":
-    path = r'D:\project\02_sleep\05_data\01_SleepEDF\sleep-telemetry_temp'
-    dataPath = r'D:\project\02_sleep\05_data\01_SleepEDF\sleep-telemetry_temp'
+    path = r'D:\sleep-data\ST'
+    dataPath = r'D:\sleep-data\ST'
     sleep = Sleep_telemetry(dataPath=path)
     sleep.save_processed_data(update_path=dataPath, subjects=[0])
     data = sleep.get_processed_data(subjects=[0], update_path=dataPath)
