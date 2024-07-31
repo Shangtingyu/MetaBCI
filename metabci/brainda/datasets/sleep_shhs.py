@@ -182,15 +182,7 @@ class Sleep_SHHS(BaseDataset):
         anns = self._get_label(subjects)
         sampling_rate = 100
         annotFiles = []
-        savePath_ch = update_path + '/'
-        for id, ch in enumerate(select_ch):
-            if id == 0:
-                savePath_ch = savePath_ch + ch
-            else:
-                savePath_ch = savePath_ch + '-' + ch
-        if not os.path.exists(savePath_ch):
-            os.makedirs(savePath_ch)
-        print(f'save in:{savePath_ch}')
+        savePath_ch = update_path
         for i in subjects:
             annotFiles.append(self.label_path(i))
         for idx, subject in enumerate(subjects):
