@@ -152,7 +152,6 @@ class Sleep_telemetry(BaseDataset):
             raise ValueError("Invalid subject id")
         psg_fnames = glob.glob(os.path.join(dataPath, "*PSG.edf"))  # eeg date
         subject_id = int(subject)
-        print(f'load subject :{subject_id}')
         path = psg_fnames[subject_id]
 
         return [[path]]
@@ -174,6 +173,7 @@ class Sleep_telemetry(BaseDataset):
                 raw = read_raw_edf(run_file, preload=True, verbose=False, stim_channel=None)
                 runs["run_{:d}".format(irun)] = raw
             sess["session_{:d}".format(isess)] = runs
+        print(f'load subject data :{subject}')
         return sess
 
     def get_freq(self, subject: int):
@@ -269,11 +269,10 @@ class Sleep_telemetry(BaseDataset):
         dataPath = self.dataPath
         if subject not in self.subjects:
             raise ValueError("Invalid subject id")
-
-        ann_fnames = glob.glob(os.path.join(dataPath, "*Hypnogram.edf"))  # label
+        ann_fnames = glob.glob(os.path.join(dataPath, "*Hypnogram.edf"))
+        # label
         subject_id = int(subject)
         path = ann_fnames[subject_id]
-
         return [[path]]
 
     def _get_single_subject_label(
@@ -295,7 +294,6 @@ class Sleep_telemetry(BaseDataset):
             A dictionary where each key is a session and each value is a dictionary of labels.
         """
         try:
-            # Get path from location
             dests = self.label_path(subject)
         except Exception as e:
             dests = self.label_path_url(subject)
@@ -307,7 +305,7 @@ class Sleep_telemetry(BaseDataset):
                 runs["run_{:d}".format(irun)] = raw
                 sess["session_{:d}".format(isess)] = runs
             sess[f"session_{isess}"] = runs
-
+        print(f'load subject label :{subject}')
         return sess
 
     def _get_label(
@@ -382,10 +380,9 @@ class Sleep_telemetry(BaseDataset):
         if subjects is None:
             subjects = self.subjects
         EPOCH_SEC_SIZE = 30
-        # get data
         raws = self.get_data(subjects)
-        # get label
         anns = self._get_label(subjects)
+
         for subject in subjects:
             raw = raws[subject]['session_0']['run_0']
             sampling_rate = raw.info['sfreq']
@@ -431,7 +428,6 @@ class Sleep_telemetry(BaseDataset):
                 select_idx = np.setdiff1d(np.arange(len(raw_ch_df)), remove_idx)
             else:
                 select_idx = np.arange(len(raw_ch_df))
-
             label_idx = np.hstack(label_idx)
             select_idx = np.intersect1d(select_idx, label_idx)
             if len(label_idx) > len(select_idx):
@@ -452,12 +448,9 @@ class Sleep_telemetry(BaseDataset):
 
             if len(raw_ch) % (EPOCH_SEC_SIZE * sampling_rate) != 0:
                 raise Exception("Raw data not divisible by 30S")
-
             n_epochs = int(len(raw_ch) / (EPOCH_SEC_SIZE * sampling_rate))
-
             x = np.asarray(np.split(raw_ch, n_epochs)).astype(np.float32)
             y = labels.astype(np.int32)
-
             assert len(x) == len(y)
             try:
                 filename = ntpath.basename(self.data_path(subject)[0][0]).replace("-PSG.", ".npz")
@@ -530,15 +523,10 @@ class Sleep_telemetry(BaseDataset):
             labels = np.array(labels)
 
         if num_classes == 2:
-            # 将1,2,3,4视为一类，区分0，变成二分类任务
             labels = [0 if label == 0 else 1 for label in labels]
-
         if num_classes == 3:
-            # 将1,2,3视为一类，区分0和4，变成三分类任务
             labels = [0 if label == 0 else 2 if label == 4 else 1 for label in labels]
-
         if num_classes == 4:
-            # 将1,2视为一类，区分0和3和4，变成四分类任务
             labels = [0 if label == 0 else 1 if label in [1, 2] else 2 if label == 3 else 3 for label in labels]
         read_datas = read_datas.transpose(0, 2, 1)
         return [labels, read_datas]
@@ -553,7 +541,7 @@ if __name__ == "__main__":
     path = r'D:\sleep-data\ST'       # 原始数据raw_data存储的地址
     dataPath = r'D:\sleep-data\ST'   # 数据预处理后的npz_data存储的地址
     sleep = Sleep_telemetry(dataPath=path)
-    sleep.save_processed_data(update_path=dataPath, subjects=[0])
-    data = sleep.get_processed_data(update_path=dataPath, subjects=[0])
+    sleep.save_processed_data(update_path=dataPath, subjects=[0,1,2])
+    data = sleep.get_processed_data(update_path=dataPath, subjects=[0,1,2])
     labels, read_datas = data[0], data[1]
     print(labels[:300])
