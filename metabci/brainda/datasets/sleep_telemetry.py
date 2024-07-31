@@ -25,9 +25,16 @@ import math
 
 
 # 创建Sleep_ST的value数据集
-class Sleep_telemetry_data(BaseDataset):
+class Sleep_telemetry(BaseDataset):
     """
-    Define subclasses for actual instantiation
+    This is the class for the SleepCassette dataset and contains functions for getting and reading raw data and
+    label, data processing and saving, reading processed data.
+    Methods:
+        save_processed_data(subjects,select_ch,update_path):
+            For the original dataset that has been stored (and will be downloaded automatically if it has not
+            been downloaded yet), the original dataset is processed and saved as npz file in the specified path.
+        get_processed_data(subjects,select_ch,update_path):
+            Read the processed data file,return [labels, datas]
 
     Dataset from:
     B Kemp, AH Zwinderman, B Tuk, HAC Kamphuisen, JJL Oberyé. Analysis of a
@@ -237,26 +244,6 @@ class Sleep_telemetry_data(BaseDataset):
 
         return data_list, label
 
-
-class Sleep_telemetry(Sleep_telemetry_data):
-    """
-    Instantiate this class to get tags, data, process and store the data and read them
-
-    Sleep staging labels can be accessed online or locally.
-    The subject of the acquired label correspond to Value.
-    Corresponding tags and values can be integrated and stored in a specified location.
-
-
-    """
-
-    def __init__(self, dataPath: str = None):
-        self.dataPath = dataPath
-        self.update_path = None
-
-        super().__init__(
-            dataPath=dataPath
-        )
-
     def label_path_url(
             self,
             subject: Union[str, int],
@@ -392,8 +379,7 @@ class Sleep_telemetry(Sleep_telemetry_data):
 
         Notes:
         ------
-        This function processes raw EEG data and its corresponding annotations (labels), applies
-        filtering, and saves the segmented data into .npz files. It handles synchronization between
+        This function processes raw EEG data and its corresponding annotations (labels) and saves the segmented data into .npz files. It handles synchronization between
         raw data and annotations, filters out unwanted epochs, and ensures data integrity before saving.
 
         """
@@ -405,7 +391,7 @@ class Sleep_telemetry(Sleep_telemetry_data):
             subjects = self.subjects
         EPOCH_SEC_SIZE = 30
         # get data
-        raws = super().get_data(subjects)
+        raws = self.get_data(subjects)
         # get label
         anns = self._get_label(subjects)
         for subject in subjects:
@@ -482,9 +468,9 @@ class Sleep_telemetry(Sleep_telemetry_data):
 
             assert len(x) == len(y)
             try:
-                filename = ntpath.basename(super().data_path(subject)[0][0]).replace("-PSG.", ".npz")
+                filename = ntpath.basename(self.data_path(subject)[0][0]).replace("-PSG.", ".npz")
             except Exception as e:
-                a = super().data_path_url(subject)[0][0]
+                a = self.data_path_url(subject)[0][0]
                 filename = ntpath.basename(a).replace("-PSG.", ".npz")
             save_dict = {
                 "x": x,
@@ -529,7 +515,7 @@ class Sleep_telemetry(Sleep_telemetry_data):
         if update_path is None:
             update_path = self.update_path
         if subjects is None:
-            num_npz = count_npz_files(update_path)
+            num_npz = self.count_npz_files(update_path)
             subjects = list(range(num_npz))
             print(f'subjects:{num_npz}')
 

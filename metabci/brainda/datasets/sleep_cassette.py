@@ -3,7 +3,33 @@ from metabci.brainda.datasets.sleep_telemetry import Sleep_telemetry
 
 
 class SleepCassette(Sleep_telemetry):
+    """
+        This is the class for the SleepCassette dataset and contains functions for getting and reading raw data and
+        label, data processing and saving, reading processed data.
+        Methods:
+            save_processed_data(subjects,select_ch,update_path):
+                For the original dataset that has been stored (and will be downloaded automatically if it has not
+                been downloaded yet), the original dataset is processed and saved as npz file in the specified path.
+            get_processed_data(subjects,select_ch,update_path):
+                Read the processed data file,return [labels, datas]
 
+        Dataset from:
+        B Kemp, AH Zwinderman, B Tuk, HAC Kamphuisen, JJL Oberyé. Analysis of a
+        sleep-dependent neuronal feedback loop: the slow-wave microcontinuity of the EEG.
+        IEEE-BME 47(9):1185-1194 (2000).
+        https://physionet.org/content/sleep-edfx/1.0.0/
+
+        The sleep-edf database contains 197 whole-night polygraphic sleep recordings, which
+        include electroencephalography (EEG), electrooculography (EOG), electromyography
+        (EMG) of the chin, and event markers. Some records also contain respiration and body
+        temperature. The corresponding hypnograms (sleep patterns) were manually scored by
+        well-trained technicians according to the Rechtschaffen and Kales manual, and are
+        also available. The data originates from two studies, which are briefly described below.
+
+        The SC (Sleep Cassette) was obtained in a 1987-1991 study of age effects on sleep in healthy
+        Caucasians aged 25-101, without any sleep-related medication [2]. Two PSGs of approximately
+        20 hours each were recorded during two subsequent day-night periods at the subjects' homes.
+    """
     def __init__(self, dataPath: str = None):
         super().__init__(
             dataPath=dataPath

@@ -1,21 +1,13 @@
 import ntpath
 from datetime import datetime, timedelta
-
 import numpy as np
 import pandas as pd
-import warnings
 import os
 from pathlib import Path
 from typing import Union, List, Dict, Optional
-from mne import read_annotations
-
 from metabci.brainda.datasets.sleep_shhs import Sleep_SHHS
-from metabci.brainda.utils.download import mne_data_path
-from metabci.brainda.datasets.base import BaseDataset
 import glob
-from mne.io import read_raw_edf
-from mne.io.edf.edf import RawEDF
-import math
+
 
 """
 This dataset is a non-public dataset.
