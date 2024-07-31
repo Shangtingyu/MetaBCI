@@ -238,11 +238,6 @@ class Sleep_telemetry_data(BaseDataset):
         return data_list, label
 
 
-def count_npz_files(file):
-    npz_files = glob.glob(os.path.join(file, '*.npz'))
-    return len(npz_files)
-
-
 class Sleep_telemetry(Sleep_telemetry_data):
     """
     Instantiate this class to get tags, data, process and store the data and read them
@@ -568,6 +563,11 @@ class Sleep_telemetry(Sleep_telemetry_data):
             labels = [0 if label == 0 else 1 if label in [1, 2] else 2 if label == 3 else 3 for label in labels]
         read_datas = read_datas.transpose(0, 2, 1)
         return [labels, read_datas]
+
+    @staticmethod
+    def count_npz_files(file):
+        npz_files = glob.glob(os.path.join(file, '*.npz'))
+        return len(npz_files)
 
 
 if __name__ == "__main__":
