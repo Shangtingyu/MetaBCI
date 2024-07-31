@@ -76,7 +76,7 @@ class Sleep_telemetry_data(BaseDataset):
         self.sleep_URL = "https://physionet.org/files/sleep-edfx/1.0.0/sleep-telemetry/"
         super().__init__(
             dataset_code="sleep_edf",
-            subjects=list(range(43)),
+            subjects=list(range(44)),
             events=self._EVENTS,
             channels=self._CHANNELS,
             srate=250,
@@ -416,7 +416,6 @@ class Sleep_telemetry(Sleep_telemetry_data):
             sampling_rate = raw.info['sfreq']
             raw_ch_df = raw.to_data_frame()[select_ch]
             warnings.filterwarnings("ignore", category=RuntimeWarning)
-            print(anns)
             ann = anns[subject]['session_0']['run_0']
             warnings.resetwarnings()
             raw_start_time = raw.info['meas_date'].strftime("%Y-%m-%d %H:%M:%S UTC")
@@ -427,7 +426,7 @@ class Sleep_telemetry(Sleep_telemetry_data):
                 ann = read_annotations(self.label_path(subject)[0][0])
                 print(ann)
             except Exception as e:
-                ann = read_annotations(self.label_path_url(subject)[0][0] + 'edf')
+                ann = read_annotations(self.label_path_url(subject)[0][0])
             remove_idx = []
             labels = []
             label_idx = []
