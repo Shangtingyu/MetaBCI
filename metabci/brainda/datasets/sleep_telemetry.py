@@ -540,8 +540,8 @@ class Sleep_telemetry(BaseDataset):
 
 
 if __name__ == "__main__":
-    path = r'D:\sleep-data\ST'                    # 原始数据raw_data存储的地址
-    dataPath = r'D:\sleep-data\ST'                # 数据预处理后的npz_data存储的地址
+    path = r'D:\sleep-data\ST'                    # 原始数据raw_data存储地址，没有则会自动下载
+    dataPath = r'D:\sleep-data\ST'                # 数据预处理后的npz_data存储地址
     subjects = [0, 1, 2]                          # None则代表处理所有被试
     select_ch = ["EEG Fpz-Cz", "EEG Pz-Oz"]       # None则代表使用单通道"EEG Fpz-Cz"
     num_classes = 5                               # 睡眠分期的分类任务
