@@ -501,8 +501,6 @@ class Sleep_telemetry(Sleep_telemetry_data):
 
     def get_processed_data(self,
                            subjects: List[Union[int, str]] = None,
-                           path: Optional[Union[str, Path]] = None,
-                           force_update: bool = False,
                            update_path: Optional[Union[str, Path]] = None,
                            proxies: Optional[Dict[str, str]] = None,
                            verbose: Optional[Union[bool, str, int]] = None,

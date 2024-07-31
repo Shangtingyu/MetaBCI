@@ -76,7 +76,6 @@ class BaseDataset(metaclass=ABCMeta):
             subject: Union[str, int],
             path: Optional[Union[str, Path]] = None,
             force_update: bool = False,
-            update_path: Optional[bool] = None,
             proxies: Optional[Dict[str, str]] = None,
             verbose: Optional[Union[bool, str, int]] = None,
     ) -> List[List[Union[str, Path]]]:
@@ -253,7 +252,6 @@ class BaseDataset(metaclass=ABCMeta):
     @verbose
     def get_processed_data(self,
                            subjects: List[Union[int, str]],
-                           path: Optional[Union[str, Path]] = None,
                            force_update: bool = False,
                            update_path: Optional[bool] = None,
                            proxies: Optional[Dict[str, str]] = None,
