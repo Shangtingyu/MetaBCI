@@ -292,11 +292,11 @@ class Sleep_SHHS(BaseDataset):
 
     def get_processed_data(self,
                            subjects: List[Union[int, str]] = None,
-                           path: Optional[Union[str, Path]] = None,
                            force_update: bool = False,
                            update_path: Optional[Union[str, Path]] = None,
                            proxies: Optional[Dict[str, str]] = None,
-                           verbose: Optional[Union[bool, str, int]] = None) \
+                           verbose: Optional[Union[bool, str, int]] = None,
+                           num_classes: Optional[int] = 5) \
             -> list:
         """
             Read data from .npz files saved in the specified path for specified subjects.
@@ -344,6 +344,17 @@ class Sleep_SHHS(BaseDataset):
                 read_datas = np.concatenate((read_datas, read_data), axis=0)
                 labels = np.concatenate((labels, label), axis=0)
             labels = np.array(labels)
+        if num_classes ==2:
+            # 将1,2,3,4视为一类，区分0，变成二分类任务
+            labels = [0 if label == 0 else 1 for label in labels]
+
+        if num_classes ==3:
+            # 将1,2,3视为一类，区分0和4，变成三分类任务
+            labels = [0 if label == 0 else 2 if label == 4 else 1 for label in labels]
+
+        if num_classes ==4:
+            # 将1,2视为一类，区分0和3和4，变成四分类任务
+            labels = [0 if label == 0 else 1 if label in [1, 2] else 2 if label == 3 else 3 for label in labels]
         read_datas = read_datas.transpose(0, 2, 1)
         return [labels, read_datas]
 
@@ -390,8 +401,8 @@ if __name__ == "__main__":
     path = r'D:\sleep-data\shhs\edfs'
     dataPath = r'D:\sleep-data\shhs'
     sleep = Sleep_SHHS(dataPath=path)
-    sleep.save_processed_data(update_path=dataPath, select_ch=["EEG", "EOG(L)", "EOG(R)"])
-    savepath = r'D:\sleep-data\shhs\EEG-EOG(L)-EOG(R)'
+    sleep.save_processed_data(update_path=dataPath, select_ch=["EEG", "EOG(L)"],subjects=[0,1,2,3])
+    savepath = r'D:\sleep-data\shhs\EEG-EOG(L)'
     data = sleep.get_processed_data(subjects=[0], update_path=savepath)
     labels, read_datas = data[0], data[1]
     print(read_datas)
