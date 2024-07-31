@@ -160,7 +160,6 @@ class Sleep_Apples(Sleep_SHHS):
             rawdata = raws[subject]['session_0']['run_0']
             annotdata = self.readAnnotFiles(annotFiles[idx][0][0])
             sampling_rate = int(rawdata.info['sfreq'])
-            # 跳过采样率为200Hz
             if sampling_rate != 100:
                 list_200HZ.append(subject)
                 continue
@@ -169,25 +168,15 @@ class Sleep_Apples(Sleep_SHHS):
             raw_startTime = raw_startTime.split("+")[0]
             ann_startTime = annotdata.iloc[0, 1]
 
-            # 检查数据和标签的时间是否对齐, 不对齐则矫正
             onsetSec, flag_del = self.checkTime(raw_startTime, ann_startTime)
             if flag_del:
                 continue
-
             durationSecond = len(annotdata) * 30
             labels = annotdata.iloc[:, 0].to_numpy()
             mapping_function = np.frompyfunc(self._EVENTS.get, 1, 1)  # 将数组元素映射为对应的值
             labels = mapping_function(labels)
             data_idx = int(onsetSec * sampling_rate) + np.arange(durationSecond * sampling_rate, dtype=int)
-            savePath_ch = update_path + '/'
-            for idx, ch in enumerate(select_ch):
-                if idx == 0:
-                    savePath_ch = savePath_ch + ch  # 第一次循环，不加'-'
-                else:
-                    savePath_ch = savePath_ch + '-' + ch  # 后续循环，加'-'
-            print(f'save path: {savePath_ch}')
-            if not os.path.exists(savePath_ch):
-                os.makedirs(savePath_ch)
+            savePath_ch = update_path
             data_X, lable_y = self.cleanData(rawdata, labels, data_idx, select_ch, sampling_rate)
             filename = ntpath.basename(self.data_path(subject)[0][0]).split("/")[-1].replace(".edf", ".npz")
             save_dict = {
