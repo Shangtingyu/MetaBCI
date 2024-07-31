@@ -2,7 +2,7 @@ import os
 from metabci.brainda.datasets.sleep_telemetry import Sleep_telemetry
 
 
-class SleepCassette(Sleep_telemetry):
+class Sleep_cassette(Sleep_telemetry):
     """
         This is the class for the SleepCassette dataset and contains functions for getting and reading raw data and
         label, data processing and saving, reading processed data.
@@ -97,10 +97,16 @@ class SleepCassette(Sleep_telemetry):
 
 
 if __name__ == "__main__":
-    path = r'D:\sleep-data\ST'
-    dataPath = r'D:\sleep-data\ST\MNE-sleep_edf-data\files\sleep-edfx\1.0.0\sleep-cassette'
-    sleep = SleepCassette(dataPath=path)
-    sleep.save_processed_data(update_path=dataPath)
-    data = sleep.get_processed_data(subjects=[1], update_path=dataPath)
+    path = r'D:\sleep-data\SC'                                      # 原始数据raw_data存储地址，没有则会自动下载
+    dataPath = r'D:\sleep-data\SC'                                  # 数据预处理后的npz_data存储地址
+    subjects = [0, 1, 2]                                            # None则代表处理所有被试
+    select_ch = ["EEG Fpz-Cz", "EEG Pz-Oz", "EOG horizontal"]       # None则代表使用单通道"EEG Fpz-Cz"
+    num_classes = 3                                                 # 睡眠分期的分类任务，支持2-5类
+
+    sleep = Sleep_cassette(dataPath=path)
+    sleep.save_processed_data(update_path=dataPath, subjects=subjects, select_ch=select_ch)
+    print("Data preprocessing is complete and data loading begins")
+    data = sleep.get_processed_data(update_path=dataPath, subjects=subjects, num_classes=num_classes)
     labels, read_datas = data[0], data[1]
-    print(read_datas)
+    print("labels.size: " + str(labels.size))
+    print("datas.shape: " + str(read_datas.shape))

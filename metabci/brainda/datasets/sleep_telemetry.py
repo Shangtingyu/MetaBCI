@@ -518,7 +518,6 @@ class Sleep_telemetry(BaseDataset):
             else:
                 read_datas = np.concatenate((read_datas, read_data), axis=0)
                 labels = np.concatenate((labels, label), axis=0)
-            labels = np.array(labels)
 
         if num_classes == 2:
             labels = [0 if label == 0 else 1 for label in labels]
@@ -528,6 +527,8 @@ class Sleep_telemetry(BaseDataset):
 
         if num_classes == 4:
             labels = [0 if label == 0 else 1 if label in [1, 2] else 2 if label == 3 else 3 for label in labels]
+
+        labels = np.array(labels)
         read_datas = read_datas.transpose(0, 2, 1)
 
         return [labels, read_datas]
@@ -538,18 +539,17 @@ class Sleep_telemetry(BaseDataset):
         return len(npz_files)
 
 
-
 if __name__ == "__main__":
     path = r'D:\sleep-data\ST'                    # 原始数据raw_data存储地址，没有则会自动下载
     dataPath = r'D:\sleep-data\ST'                # 数据预处理后的npz_data存储地址
     subjects = [0, 1, 2]                          # None则代表处理所有被试
     select_ch = ["EEG Fpz-Cz", "EEG Pz-Oz"]       # None则代表使用单通道"EEG Fpz-Cz"
-    num_classes = 5                               # 睡眠分期的分类任务
+    num_classes = 5                               # 睡眠分期的分类任务，支持2-5类
 
     sleep = Sleep_telemetry(dataPath=path)
     sleep.save_processed_data(update_path=dataPath, subjects=subjects, select_ch=select_ch)
     print("Data preprocessing is complete and data loading begins")
     data = sleep.get_processed_data(update_path=dataPath, subjects=subjects, num_classes=num_classes)
     labels, read_datas = data[0], data[1]
-    print("labels.size:" + str(labels.size))
-    print("datas.shape:" + str(read_datas.shape))
+    print("labels.size: " + str(labels.size))
+    print("datas.shape: " + str(read_datas.shape))

@@ -9,9 +9,9 @@ from metabci.brainda.algorithms.deep_learning.AttnSleep import AttnSleep
 from metabci.brainda.datasets.sleep_telemetry import Sleep_telemetry
 
 
-dataPath = r'C:\Users\86130\Desktop\哈哈哈哈'
-path = r'/data/xingjain.zhang/sleep/1_npzdata/SC/01_SC_FPZ-Cz'
-sleep = Sleep_telemetry(dataPath)
+# dataPath = r'C:\Users\86130\Desktop\哈哈哈哈'
+path = r'D:\sleep-data\ST'
+sleep = Sleep_telemetry()
 subjects = [3]
 data = sleep.get_processed_data(update_path=path, subjects=subjects)
 label, input_data = data[0], data[1]
