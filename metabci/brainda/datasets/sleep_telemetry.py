@@ -51,9 +51,8 @@ class Sleep_telemetry(BaseDataset):
     The SC (Sleep Cassette) was obtained in a 1987-1991 study of age effects on sleep in healthy
     Caucasians aged 25-101, without any sleep-related medication [2]. Two PSGs of approximately
     20 hours each were recorded during two subsequent day-night periods at the subjects' homes.
-
-
     """
+
     _EVENTS = {
         "Sleep stage W": 0,
         "Sleep stage 1": 1,
@@ -126,7 +125,7 @@ class Sleep_telemetry(BaseDataset):
             update_path=update_path,
         )
 
-        return [[file_dest[:-3]]]
+        return [[file_dest]]
 
     def data_path(
             self,
@@ -172,11 +171,6 @@ class Sleep_telemetry(BaseDataset):
         for isess, run_dests in enumerate(dests):
             runs = dict()
             for irun, run_file in enumerate(run_dests):
-                # run_file = run_file.with_suffix('.edf')
-
-                if not run_file.endswith('edf'):
-                    run_file += 'edf'
-
                 raw = read_raw_edf(run_file, preload=True, verbose=False, stim_channel=None)
                 runs["run_{:d}".format(irun)] = raw
             sess["session_{:d}".format(isess)] = runs
@@ -309,8 +303,6 @@ class Sleep_telemetry(BaseDataset):
         for isess, run_dests in enumerate(dests):
             runs = dict()
             for irun, run_file in enumerate(run_dests):
-                if not run_file.endswith('edf'):
-                    run_file += 'edf'
                 raw = read_raw_edf(run_file, preload=True, verbose=False, stim_channel=None)
                 runs["run_{:d}".format(irun)] = raw
                 sess["session_{:d}".format(isess)] = runs
@@ -344,6 +336,7 @@ class Sleep_telemetry(BaseDataset):
         ValueError
             Raised if a subject is not valid.
         """
+
         # Use default subjects if not provided
         if subjects is None:
             subjects = self.subjects
@@ -535,15 +528,16 @@ class Sleep_telemetry(BaseDataset):
                 read_datas = np.concatenate((read_datas, read_data), axis=0)
                 labels = np.concatenate((labels, label), axis=0)
             labels = np.array(labels)
-        if num_classes ==2:
+
+        if num_classes == 2:
             # 将1,2,3,4视为一类，区分0，变成二分类任务
             labels = [0 if label == 0 else 1 for label in labels]
 
-        if num_classes ==3:
+        if num_classes == 3:
             # 将1,2,3视为一类，区分0和4，变成三分类任务
             labels = [0 if label == 0 else 2 if label == 4 else 1 for label in labels]
 
-        if num_classes ==4:
+        if num_classes == 4:
             # 将1,2视为一类，区分0和3和4，变成四分类任务
             labels = [0 if label == 0 else 1 if label in [1, 2] else 2 if label == 3 else 3 for label in labels]
         read_datas = read_datas.transpose(0, 2, 1)
@@ -556,10 +550,10 @@ class Sleep_telemetry(BaseDataset):
 
 
 if __name__ == "__main__":
-    path = r'D:\sleep-data\ST'
-    dataPath = r'D:\sleep-data\ST'
+    path = r'D:\sleep-data\ST'       # 原始数据raw_data存储的地址
+    dataPath = r'D:\sleep-data\ST'   # 数据预处理后的npz_data存储的地址
     sleep = Sleep_telemetry(dataPath=path)
     sleep.save_processed_data(update_path=dataPath, subjects=[0])
-    data = sleep.get_processed_data(subjects=[0], update_path=dataPath)
+    data = sleep.get_processed_data(update_path=dataPath, subjects=[0])
     labels, read_datas = data[0], data[1]
     print(labels[:300])
