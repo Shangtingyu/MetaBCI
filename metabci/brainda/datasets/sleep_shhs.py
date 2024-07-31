@@ -1,3 +1,9 @@
+# -*- coding: utf-8 -*-
+# Organization: Hangzhou MindMatrixes Technology Co.
+# Authors: Shangtingyu
+# Date: 2024/7/4
+# License: MIT License
+
 import ntpath
 import numpy as np
 import pandas as pd
@@ -17,47 +23,6 @@ xingjian.zhang@mindmatrixes.com
 or download it here:
 https://pan.baidu.com/s/1WBZIOO4-D95SK7KJw_6YCA?pwd=mdsk
 """
-
-
-def readAnnotFiles(path_label):
-    """读取数据标签，同时如果有额外标签，返回的标志位置true"""
-    flag_del = False
-    tree = ET.parse(path_label)
-    root = tree.getroot()
-    # 定义表格的列
-    columns = ["EventConcept", "Start", "Duration"]
-    # 创建一个空的列表
-    data = []
-    # 遍历XML中的ScoredEvents
-    for scored_event in root.findall(".//ScoredEvent"):
-        event_data = {}
-        # 遍历ScoredEvent中的子元素并添加到字典
-        for element in scored_event:
-            event_data[element.tag] = element.text
-        # 只保留 EventType 为 Stages|Stages 的行
-        if event_data.get("EventType") == "Stages|Stages":
-            # stage的名称替换
-            event_concept = event_data.get("EventConcept", "")
-            if event_concept == "Wake|0":
-                event_data["EventConcept"] = "W"
-            elif event_concept == "Stage 1 sleep|1":
-                event_data["EventConcept"] = "N1"
-            elif event_concept == "Stage 2 sleep|2":
-                event_data["EventConcept"] = "N2"
-            elif event_concept == "Stage 3 sleep|3":
-                event_data["EventConcept"] = "N3"
-            elif event_concept == "Stage 4 sleep|4":
-                event_data["EventConcept"] = "N3"
-            elif event_concept == "REM sleep|5":
-                event_data["EventConcept"] = "R"
-            else:
-                print("存在名称问题:{},该文件跳过处理".format(event_data["EventConcept"]))  # 例如Unscored
-                flag_del = True
-            data.append(event_data)
-    # 使用列表创建DataFrame
-    df = pd.DataFrame(data, columns=columns)
-
-    return df, flag_del
 
 
 class Sleep_SHHS(BaseDataset):
@@ -159,7 +124,7 @@ class Sleep_SHHS(BaseDataset):
             for irun, run_file in enumerate(run_dests):
                 # Ensure .edf suffix is present
                 if not run_file.endswith('.edf'):
-                    raw, _ = readAnnotFiles(run_file)
+                    raw, _ = self.readAnnotFiles(run_file)
                     runs["run_{:d}".format(irun)] = raw
                 sess["session_{:d}".format(isess)] = runs
             sess[f"session_{isess}"] = runs
@@ -224,7 +189,7 @@ class Sleep_SHHS(BaseDataset):
         for idx, subject in enumerate(subjects):
             rawdata = raws[subject]['session_0']['run_0']
             rawdata = rawdata.resample(sfreq=sampling_rate)
-            annotFrame, flag_del = readAnnotFiles(annotFiles[idx][0][0])
+            annotFrame, flag_del = self.readAnnotFiles(annotFiles[idx][0][0])
             if flag_del:
                 # 有未知标签跳过
                 continue
@@ -396,6 +361,46 @@ class Sleep_SHHS(BaseDataset):
 
         return labels
 
+    @staticmethod
+    def readAnnotFiles(path_label):
+        """读取数据标签，同时如果有额外标签，返回的标志位置true"""
+        flag_del = False
+        tree = ET.parse(path_label)
+        root = tree.getroot()
+        # 定义表格的列
+        columns = ["EventConcept", "Start", "Duration"]
+        # 创建一个空的列表
+        data = []
+        # 遍历XML中的ScoredEvents
+        for scored_event in root.findall(".//ScoredEvent"):
+            event_data = {}
+            # 遍历ScoredEvent中的子元素并添加到字典
+            for element in scored_event:
+                event_data[element.tag] = element.text
+            # 只保留 EventType 为 Stages|Stages 的行
+            if event_data.get("EventType") == "Stages|Stages":
+                # stage的名称替换
+                event_concept = event_data.get("EventConcept", "")
+                if event_concept == "Wake|0":
+                    event_data["EventConcept"] = "W"
+                elif event_concept == "Stage 1 sleep|1":
+                    event_data["EventConcept"] = "N1"
+                elif event_concept == "Stage 2 sleep|2":
+                    event_data["EventConcept"] = "N2"
+                elif event_concept == "Stage 3 sleep|3":
+                    event_data["EventConcept"] = "N3"
+                elif event_concept == "Stage 4 sleep|4":
+                    event_data["EventConcept"] = "N3"
+                elif event_concept == "REM sleep|5":
+                    event_data["EventConcept"] = "R"
+                else:
+                    print("存在名称问题:{},该文件跳过处理".format(event_data["EventConcept"]))  # 例如Unscored
+                    flag_del = True
+                data.append(event_data)
+        # 使用列表创建DataFrame
+        df = pd.DataFrame(data, columns=columns)
+
+        return df, flag_del
 
 if __name__ == "__main__":
     path = r'D:\sleep-data\shhs\edfs'

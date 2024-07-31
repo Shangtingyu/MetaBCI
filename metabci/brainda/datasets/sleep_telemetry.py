@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Organization: Hangzhou Maidong Digital Health Technology Co.
+# Organization: Hangzhou MindMatrixes Technology Co.
 # Authors: Shangtingyu
 # Date: 2024/7/4
 # License: MIT License
@@ -10,7 +10,6 @@ https://www.physionet.org/content/sleep-edfx/1.0.0/sleep-telemetry/#files-panel
 """
 import ntpath
 import numpy as np
-import pandas as pd
 import warnings
 import os
 from pathlib import Path
@@ -323,7 +322,7 @@ class Sleep_telemetry(BaseDataset):
             self,
             subjects: List[Union[int, str]] = None,
             verbose: Optional[Union[bool, str, int]] = None,
-    ) -> Dict[Union[int, str], Dict[str, Dict[str, str]]]:
+    ) -> dict[int | str, dict[str, dict[str, RawEDF]]]:
         """
         Get label data.
 
