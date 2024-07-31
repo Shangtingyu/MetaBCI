@@ -168,6 +168,9 @@ class Sleep_telemetry_data(BaseDataset):
             for irun, run_file in enumerate(run_dests):
                 # run_file = run_file.with_suffix('.edf')
 
+                if not run_file.endswith('edf'):
+                    run_file += 'edf'
+
                 raw = read_raw_edf(run_file, preload=True, verbose=False, stim_channel=None)
                 runs["run_{:d}".format(irun)] = raw
             sess["session_{:d}".format(isess)] = runs
@@ -275,7 +278,7 @@ class Sleep_telemetry(Sleep_telemetry_data):
         subject_id = subject_id + 1
         psg, ann = self.read_data_name(subject_id)
         url_ann = "{:s}{:s}".format(self.sleep_URL, ann)
-
+        # print(url_ann)
         file_dest = mne_data_path(
             url_ann,
             "sleep_edf",
@@ -284,8 +287,8 @@ class Sleep_telemetry(Sleep_telemetry_data):
             force_update=force_update,
             update_path=update_path,
         )
-
-        return [[file_dest[:-3]]]
+        print("file_dest: " + str(file_dest))
+        return [[file_dest]]
 
     def label_path(
             self, subject: Union[str, int]) -> List[List[Union[str, Path]]]:
@@ -323,11 +326,12 @@ class Sleep_telemetry(Sleep_telemetry_data):
             dests = self.label_path(subject)
         except Exception as e:
             dests = self.label_path_url(subject)
-
         sess = dict()
         for isess, run_dests in enumerate(dests):
             runs = dict()
             for irun, run_file in enumerate(run_dests):
+                if not run_file.endswith('edf'):
+                    run_file += 'edf'
                 raw = read_raw_edf(run_file, preload=True, verbose=False, stim_channel=None)
                 runs["run_{:d}".format(irun)] = raw
                 sess["session_{:d}".format(isess)] = runs
@@ -572,10 +576,10 @@ class Sleep_telemetry(Sleep_telemetry_data):
 
 
 if __name__ == "__main__":
-    path = r'D:\sleep-data\ST\MNE-sleep_edf-data\files\sleep-edfx\1.0.0\sleep-telemetry'
-    dataPath = r'D:\sleep-data\ST\EEG Fpz-Cz'
+    path = r'D:\project\02_sleep\05_data\01_SleepEDF\sleep-telemetry_temp'
+    dataPath = r'D:\project\02_sleep\05_data\01_SleepEDF\sleep-telemetry_temp'
     sleep = Sleep_telemetry(dataPath=path)
-    sleep.save_processed_data(update_path=dataPath, subjects=[1])
+    sleep.save_processed_data(update_path=dataPath, subjects=[0])
     data = sleep.get_processed_data(subjects=[0], update_path=dataPath)
     labels, read_datas = data[0], data[1]
     print(labels[:300])
