@@ -29,13 +29,13 @@ pytest~=8.2.2
 h5py~=3.11.0
 scikit-learn==0.18
 sphinxcontrib-napoleon
-skorch~=1.0.0
+skorch==1.0.0
 pooch~=1.8.2
 pylsl~=1.16.2
 # pip install psychopy failed on mac[py37, py38], due to wxpython build problem
 wxPython==4.1.1; sys_platform == 'darwin' and python_version <= '3.8'
 pyglet==1.5.27; sys_platform == 'darwin' and python_version <= '3.8'
-mne-bids
+mne_bids==0.15.0
 
 Sphinx~=7.3.7
 sphinxcontrib-napoleon

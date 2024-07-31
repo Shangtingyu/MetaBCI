@@ -147,7 +147,7 @@ class Sleep_telemetry_data(BaseDataset):
             raise ValueError("Invalid subject id")
         psg_fnames = glob.glob(os.path.join(dataPath, "*PSG.edf"))  # eeg date
         subject_id = int(subject)
-        print(f'download subject :{subject_id}')
+        print(f'load subject :{subject_id}')
         path = psg_fnames[subject_id]
 
         return [[path]]
@@ -159,7 +159,6 @@ class Sleep_telemetry_data(BaseDataset):
         try:
             # get path from location
             dests = self.data_path(subject)
-            print('no file')
         except:
             # get path from url
             dests = self.data_path_url(subject)
@@ -168,8 +167,7 @@ class Sleep_telemetry_data(BaseDataset):
             runs = dict()
             for irun, run_file in enumerate(run_dests):
                 # run_file = run_file.with_suffix('.edf')
-                run_file = run_file + 'edf'
-                print(run_file)
+
                 raw = read_raw_edf(run_file, preload=True, verbose=False, stim_channel=None)
                 runs["run_{:d}".format(irun)] = raw
             sess["session_{:d}".format(isess)] = runs
@@ -304,7 +302,7 @@ class Sleep_telemetry(Sleep_telemetry_data):
 
     def _get_single_subject_label(
             self, subject: Union[str, int], verbose: Optional[Union[bool, str, int]] = None
-    ) -> Dict[str, Dict[str, str]]:
+    ) -> dict[str, dict[str, RawEDF]]:
         """
         Get label data for a single subject.
 
@@ -330,11 +328,8 @@ class Sleep_telemetry(Sleep_telemetry_data):
         for isess, run_dests in enumerate(dests):
             runs = dict()
             for irun, run_file in enumerate(run_dests):
-                # Ensure .edf suffix is present
-                if not run_file.endswith('.edf'):
-                    run_file += 'edf'
-                    raw = read_raw_edf(run_file, preload=True, verbose=False, stim_channel=None)
-                    runs["run_{:d}".format(irun)] = raw
+                raw = read_raw_edf(run_file, preload=True, verbose=False, stim_channel=None)
+                runs["run_{:d}".format(irun)] = raw
                 sess["session_{:d}".format(isess)] = runs
             sess[f"session_{isess}"] = runs
 
@@ -387,7 +382,7 @@ class Sleep_telemetry(Sleep_telemetry_data):
                             verbose: Optional[Union[bool, str, int]] = None,
                             select_ch: List[str] = None):
         """
-        Save processed EEG data and corresponding labels as .npz files.
+        Save processed EEG/EOG data and corresponding labels as .npz files.
 
         Parameters:
         -----------
@@ -421,6 +416,7 @@ class Sleep_telemetry(Sleep_telemetry_data):
             sampling_rate = raw.info['sfreq']
             raw_ch_df = raw.to_data_frame()[select_ch]
             warnings.filterwarnings("ignore", category=RuntimeWarning)
+            print(anns)
             ann = anns[subject]['session_0']['run_0']
             warnings.resetwarnings()
             raw_start_time = raw.info['meas_date'].strftime("%Y-%m-%d %H:%M:%S UTC")
@@ -429,6 +425,7 @@ class Sleep_telemetry(Sleep_telemetry_data):
                 continue
             try:
                 ann = read_annotations(self.label_path(subject)[0][0])
+                print(ann)
             except Exception as e:
                 ann = read_annotations(self.label_path_url(subject)[0][0] + 'edf')
             remove_idx = []
@@ -576,10 +573,10 @@ class Sleep_telemetry(Sleep_telemetry_data):
 
 
 if __name__ == "__main__":
-    path = r'C:\Users\86130\Desktop\ST'
+    path = r'D:\sleep-data\ST\MNE-sleep_edf-data\files\sleep-edfx\1.0.0\sleep-telemetry'
     dataPath = r'D:\sleep-data\ST\EEG Fpz-Cz'
     sleep = Sleep_telemetry(dataPath=path)
-    # sleep.save_processed_data(update_path=dataPath)
+    sleep.save_processed_data(update_path=dataPath, subjects=[1])
     data = sleep.get_processed_data(subjects=[0], update_path=dataPath)
     labels, read_datas = data[0], data[1]
     print(labels[:300])
