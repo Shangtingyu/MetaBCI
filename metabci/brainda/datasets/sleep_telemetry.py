@@ -23,7 +23,6 @@ from mne.io.edf.edf import RawEDF
 import math
 
 
-# 创建Sleep_ST的value数据集
 class Sleep_telemetry(BaseDataset):
     """
     This is the class for the SleepCassette dataset and contains functions for getting and reading raw data and
@@ -36,21 +35,20 @@ class Sleep_telemetry(BaseDataset):
             Read the processed data file,return [labels, datas]
 
     Dataset from:
-    B Kemp, AH Zwinderman, B Tuk, HAC Kamphuisen, JJL Oberyé. Analysis of a
-    sleep-dependent neuronal feedback loop: the slow-wave microcontinuity of the EEG.
-    IEEE-BME 47(9):1185-1194 (2000).
-    https://physionet.org/content/sleep-edfx/1.0.0/
+    M. S. Mourtazaev, B. Kemp, A. H. Zwinderman, and H. A. C. Kamphuisen, “Age and Gender Affect Different
+    Characteristics of Slow Waves in the Sleep EEG,” Sleep,
+    vol. 18, no. 7, pp. 557–564, Sep. 1995, doi: 10.1093/sleep/18.7.557
 
-    The sleep-edf database contains 197 whole-night polygraphic sleep recordings, which
-    include electroencephalography (EEG), electrooculography (EOG), electromyography
-    (EMG) of the chin, and event markers. Some records also contain respiration and body
-    temperature. The corresponding hypnograms (sleep patterns) were manually scored by
-    well-trained technicians according to the Rechtschaffen and Kales manual, and are
-    also available. The data originates from two studies, which are briefly described below.
+    The sleep-edf database contains a lot of whole-night polygraphic sleep recordings, which include
+    electroencephalography (EEG), electrooculography (EOG), electromyography (EMG) of the chin, and event markers.
+    Some records also contain respiration and body temperature. The corresponding hypnograms (sleep patterns) were
+    manually scored by well-trained technicians according to the Rechtschaffen and Kales manual, and are also available.
 
-    The SC (Sleep Cassette) was obtained in a 1987-1991 study of age effects on sleep in healthy
-    Caucasians aged 25-101, without any sleep-related medication [2]. Two PSGs of approximately
-    20 hours each were recorded during two subsequent day-night periods at the subjects' homes.
+    The 44 ST* files (ST = Sleep Telemetry) were obtained in a 1994 study of temazepam effects on sleep in 22 Caucasian
+    males and females without other medication. Subjects had mild difficulty falling asleep but were otherwise healthy.
+    The PSGs of about 9 hours were recorded in the hospital during two nights, one of which was after temazepam intake,
+    and the other of which was after placebo intake. EOG, EMG and EEG signals were sampled at 100 Hz,and the event
+    marker at 1 Hz. Files are named in the form ST7ssNJ0-PSG.edf where ss is the subject number, and N is the night.
     """
 
     _EVENTS = {
@@ -65,12 +63,13 @@ class Sleep_telemetry(BaseDataset):
     }
 
     _CHANNELS = [
-        'Fpz-Cz',
-        'Pz-Oz'
+        'EEG Fpz-Cz',
+        'EEG Pz-Oz',
+        'EOG horizontal',
+        'EMG submental'
     ]
-    sleep_URL = "https://physionet.org/files/sleep-edfx/1.0.0/sleep-telemetry/"
 
-    def __init__(self, dataPath: str):
+    def __init__(self, dataPath: str = None):
         """
 
             Args:
@@ -540,15 +539,17 @@ class Sleep_telemetry(BaseDataset):
 
 
 if __name__ == "__main__":
-    path = r'D:\sleep-data\ST'                    # 原始数据raw_data存储地址，没有则会自动下载
-    dataPath = r'D:\sleep-data\ST'                # 数据预处理后的npz_data存储地址
-    subjects = [0, 1, 2]                          # None则代表处理所有被试
-    select_ch = ["EEG Fpz-Cz", "EEG Pz-Oz"]       # None则代表使用单通道"EEG Fpz-Cz"
-    num_classes = 5                               # 睡眠分期的分类任务，支持2-5类
+    path = r'D:\sleep-data\ST\raw'         # 原始数据raw_data存储地址，没有则会自动下载
+    dataPath = r'D:\sleep-data\ST\npz'     # 数据预处理后的npz_data存储地址
+    os.makedirs(dataPath, exist_ok=True)
+
+    subjects = [0, 1, 2]                   # None则代表处理所有被试
+    select_ch = ["EEG Fpz-Cz"]             # None则代表使用单通道"EEG Fpz-Cz"
+    num_classes = 5                        # 睡眠分期的分类任务，支持2-5类
 
     sleep = Sleep_telemetry(dataPath=path)
     sleep.save_processed_data(update_path=dataPath, subjects=subjects, select_ch=select_ch)
-    print("Data preprocessing is complete and data loading begins")
+    print("Data preprocessing is complete.")
     data = sleep.get_processed_data(update_path=dataPath, subjects=subjects, num_classes=num_classes)
     labels, read_datas = data[0], data[1]
     print("labels.size: " + str(labels.size))

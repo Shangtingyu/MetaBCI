@@ -21,20 +21,34 @@ This dataset is a non-public dataset.
 if you need this dataset, please contact this mailbox:
 xingjian.zhang@mindmatrixes.com
 or download it here:
-https://pan.baidu.com/s/1WBZIOO4-D95SK7KJw_6YCA?pwd=mdsk
+https://pan.baidu.com/s/1_3umu61B8wln_MylCjoDbw?pwd=mdsk
 """
 
 
 class Sleep_SHHS(BaseDataset):
     """
-    Dataset from:
-    Zhang GQ, Cui L, Mueller R, Tao S, Kim M, Rueschman M, Mariani S, Mobley D, Redline S.
-    The National Sleep Research Resource: towards a sleep data commons. J Am Med Inform Assoc.
-    2018 Oct 1;25(10):1351-1358. doi: 10.1093/jamia/ocy064. PMID: 29860441; PMCID: PMC6188513.
-    https://sleepdata.org/datasets/nfs
+        This is the class for the SHHS dataset and contains functions for getting and reading raw data and
+        label, data processing and saving, reading processed data.
+        Methods:
+        save_processed_data(subjects,select_ch,update_path):
+            For the original dataset that has been stored, the original dataset is processed and saved as npz file
+            in the specified path.
+        get_processed_data(subjects,select_ch,update_path):
+            Read the processed data file,return [labels, datas]
 
+        Dataset from:
+        S. Quan et al., “The Sleep Heart Health Study: design, rationale, and methods,” Sleep,
+        vol. 20, no. 12, pp. 1077–1085, Dec. 1997, doi: 10.1093/sleep/20.12.1077.
+
+        The Sleep Heart Health Study (SHHS) is a multi-center cohort study implemented by the National Heart Lung &
+        Blood Institute to determine the cardiovascular and other consequences of sleep-disordered breathing. It tests
+        whether sleep-related breathing is associated with an increased risk of coronary heart disease, stroke, all
+        cause mortality, and hypertension.  In all, 6,441 men and women aged 40 years and older were enrolled between
+        November 1, 1995 and January 31, 1998 to take part in SHHS Visit 1. During exam cycle 3 ( 2001- 2003), a second
+        polysomnogram (SHHS Visit 2) was obtained in 3,295 of the participants. CVD Outcomes data were monitored and
+        adjudicated by parent cohorts between baseline and 2011.
     """
-    EPOCH_SEC_SIZE = 30
+
     _EVENTS = {
         "W": 0,
         "N1": 1,
@@ -42,7 +56,15 @@ class Sleep_SHHS(BaseDataset):
         "N3": 3,
         "R": 4
     }
-    _CHANNELS = ["EEG", "EOG(L)", "EOG(R)"]
+
+    _CHANNELS = [
+        "EEG",
+        "EEG(sec)",
+        "EOG(L)",
+        "EOG(R)",
+        "ECG",
+        "EMG"
+    ]
 
     def __init__(self, dataPath: str = None):
         self.dataPath = dataPath
@@ -194,22 +216,21 @@ class Sleep_SHHS(BaseDataset):
             result_df = annotFrame[['EventConcept']].copy()
             annotFrame['Duration'] = annotFrame['Duration'].astype(float)
             annotFrame['Chunks'] = (annotFrame['Duration'] / 30).astype(int)
-            result_df = result_df.loc[result_df.index.repeat(annotFrame['Chunks'])]  # 作用是根据每行的 'Chunks' 列的值，重复对应行的数据
-            result_df.reset_index(drop=True, inplace=True)  # 重新设置索引
+            result_df = result_df.loc[result_df.index.repeat(annotFrame['Chunks'])]
+            result_df.reset_index(drop=True, inplace=True)
             resultFrame = result_df
             labels = resultFrame.iloc[:, 0].to_numpy()
-            mapping_function = np.frompyfunc(self._EVENTS.get, 1, 1)  # 将数组元素映射为对应的值
+            mapping_function = np.frompyfunc(self._EVENTS.get, 1, 1)
             labels = mapping_function(labels)
             durationSecond = len(labels) * 30
             data_idx = np.arange(durationSecond * sampling_rate, dtype=int)
-            print("开始处理通道：{}".format(select_ch))
 
             channel_data = rawdata.to_data_frame()[select_ch]
-            channel_data.set_index(np.arange(len(channel_data)))  # 设置为一个新的整数索引.
+            channel_data.set_index(np.arange(len(channel_data)))
             if data_idx[-1] > len(channel_data) - 1:
                 deleteIndx = data_idx[-1] - (len(channel_data) - 1)
-                deleteIndxEpoch = int(deleteIndx // (EPOCH_SEC_SIZE * sampling_rate))  # 取整
-                deleteIndxEpoch_remain = int(deleteIndx % (EPOCH_SEC_SIZE * sampling_rate))  # 取余
+                deleteIndxEpoch = int(deleteIndx // (EPOCH_SEC_SIZE * sampling_rate))
+                deleteIndxEpoch_remain = int(deleteIndx % (EPOCH_SEC_SIZE * sampling_rate))
 
                 if deleteIndxEpoch_remain == 0:
                     labels = labels[:-deleteIndxEpoch]
@@ -291,7 +312,7 @@ class Sleep_SHHS(BaseDataset):
             else:
                 read_datas = np.concatenate((read_datas, read_data), axis=0)
                 labels = np.concatenate((labels, label), axis=0)
-            labels = np.array(labels)
+
         if num_classes == 2:
             labels = [0 if label == 0 else 1 for label in labels]
 
@@ -375,7 +396,7 @@ class Sleep_SHHS(BaseDataset):
                 elif event_concept == "REM sleep|5":
                     event_data["EventConcept"] = "R"
                 else:
-                    print("存在名称问题:{},该文件跳过处理".format(event_data["EventConcept"]))  # 例如Unscored
+                    print("存在名称问题:{},该文件跳过处理".format(event_data["EventConcept"]))
                     flag_del = True
                 data.append(event_data)
         # 使用列表创建DataFrame
@@ -385,11 +406,18 @@ class Sleep_SHHS(BaseDataset):
 
 
 if __name__ == "__main__":
-    path = r'D:\sleep-data\shhs\edfs'
-    dataPath = r'D:\sleep-data\shhs'
+    path = r'D:\sleep-data\SHHS\raw'             # 原始数据raw_data存储地址
+    dataPath = r'D:\sleep-data\SHHS\npz'         # 数据预处理后的npz_data存储地址
+    os.makedirs(dataPath, exist_ok=True)
+
+    subjects = [0, 1, 2]                         # None则代表处理所有被试
+    select_ch = ["EEG", "EOG(L)"]                # None则代表使用单通道"EEG"
+    num_classes = 2                              # 睡眠分期的分类任务，支持2-5类
+
     sleep = Sleep_SHHS(dataPath=path)
-    sleep.save_processed_data(update_path=dataPath, select_ch=["EEG", "EOG(L)"], subjects=[0])
-    savepath = r'D:\sleep-data\shhs\EEG-EOG(L)'
-    data = sleep.get_processed_data(subjects=[0], update_path=savepath)
+    sleep.save_processed_data(update_path=dataPath, subjects=subjects, select_ch=select_ch)
+    print("Data preprocessing is complete.")
+    data = sleep.get_processed_data(update_path=dataPath, subjects=subjects, num_classes=num_classes)
     labels, read_datas = data[0], data[1]
-    print(read_datas)
+    print("labels.size: " + str(labels.size))
+    print("datas.shape: " + str(read_datas.shape))
