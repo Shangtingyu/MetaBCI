@@ -19,17 +19,33 @@ This dataset is a non-public dataset.
 if you need this dataset, please contact this mailbox:
 xingjian.zhang@mindmatrixes.com
 or download it here:
-https://pan.baidu.com/s/1Ery-1gP4PHIX1mRANRasCA?pwd=mdsk 
+https://pan.baidu.com/s/12OU1h5rJR0yK8jkk8B7FvQ?pwd=mdsk 
 """
 
 
 class Sleep_Apples(Sleep_SHHS):
     """
-    Dataset from:
-    Zhang GQ, Cui L, Mueller R, Tao S, Kim M, Rueschman M, Mariani S, Mobley D, Redline S.
-    The National Sleep Research Resource: towards a sleep data commons. J Am Med Inform Assoc.
-    2018 Oct 1;25(10):1351-1358. doi: 10.1093/jamia/ocy064. PMID: 29860441; PMCID: PMC6188513.
-    https://sleepdata.org/datasets/nfs
+        This is the class for the Apples dataset and contains functions for getting and reading raw data and
+        label, data processing and saving, reading processed data.
+        Methods:
+        save_processed_data(subjects,select_ch,update_path):
+            For the original dataset that has been stored, the original dataset is processed and saved as npz file
+            in the specified path.
+        get_processed_data(subjects,select_ch,update_path):
+            Read the processed data file,return [labels, datas]
+
+        Dataset from:
+        S. F. Quan et al., “The Association between Obstructive Sleep Apnea and Neurocognitive Performance—The Apnea
+        Positive Pressure Long-term Efficacy Study (APPLES),” Sleep, vol. 34, no. 3, pp. 303–314, Mar. 2011,
+        doi: 10.1093/sleep/34.3.303.
+
+        The Apnea Positive Pressure Long-term Efficacy Study (APPLES) was a NHLBI-sponsored 6-month, randomized,
+        double-blind, 2-arm, sham-controlled, multicenter trial conducted at 5 U.S. university hospitals, or private
+        practices. 1,516 participants were enrolled since November 2003 and studied for up to 6 months over 11 visits,
+        of which 1,105 were randomized to active vs. sham CPAP (REMstar Pro, Philips Respironics, Inc.) devices; the
+        sham CPAP device closely simulates the airflow through the exhalation port and the operating noise of the active
+        CPAP device. 1,098 participants were diagnosed with OSA contributed to the analysis of the primary outcome
+        measures. The study was completed in August 2008.
     """
 
     _EVENTS = {
@@ -39,7 +55,18 @@ class Sleep_Apples(Sleep_SHHS):
         "N3": 3,
         "R": 4
     }
-    _CHANNELS = ["C3_M2", "ROC", "LOC"]
+
+    _CHANNELS = [
+        "C3_M2",
+        "C4_M1",
+        "O1_M2",
+        "O2_M1",
+        "ROC",
+        "LOC",
+        "ROC",
+        "ECG",
+        "EMG"
+    ]
 
     def __init__(self, dataPath: str = None):
         self.dataPath = dataPath
@@ -63,16 +90,11 @@ class Sleep_Apples(Sleep_SHHS):
         """判断标签和数据的时间是否一致，不一致调整数据的开始时间"""
         onsetSec = 0
         flag_del = False
-        # 该日期部分可以是任意日期，因为我们不关心日期，只是为了获取时间差
-        fixed_date = "2023-01-01"
-        # 将时间字符串解析为 datetime 对象，合并到固定日期
+        fixed_date = "2023-01-01"  # 该日期部分可以是任意日期，因为我们不关心日期，只是为了获取时间差
         time_edf = datetime.strptime(fixed_date + " " + time_edf, "%Y-%m-%d %H:%M:%S")
         time_ann = datetime.strptime(fixed_date + " " + time_ann, "%Y-%m-%d %H:%M:%S")
-
-        # 创建12点的 datetime 对象
         thresholdTime = datetime(time_edf.year, time_edf.month, time_edf.day, 12, 0, 0)
 
-        # 可能会从12点之后才开始计算时间, 判断是否过夜了
         if time_edf < thresholdTime:
             time_edf += timedelta(days=1)
         if time_ann < thresholdTime:
@@ -83,7 +105,7 @@ class Sleep_Apples(Sleep_SHHS):
         elif time_edf < time_ann:
             timeDifference = time_ann - time_edf
             differentSecond = timeDifference.total_seconds()
-            onsetSec = differentSecond  # 使用EDF的开始时间
+            onsetSec = differentSecond
             print("EDF比标签开始的时间早")
             print(time_edf)
             print(time_ann)
@@ -99,7 +121,6 @@ class Sleep_Apples(Sleep_SHHS):
     def cleanData(rawdata, labels, data_idx, select_ch, sampling_rate):
         raw_ch_df = rawdata.to_data_frame()[select_ch]
         EPOCH_SEC_SIZE = 30
-        # 可能存在结尾EDF数据比标签数据短的情况（数据损坏导致的？）
         if data_idx[-1] > len(raw_ch_df) - 1:
             deleteIndx = data_idx[-1] - (len(raw_ch_df) - 1)
             deleteIndxEpoch = int(deleteIndx // (EPOCH_SEC_SIZE * sampling_rate))  # 取整
@@ -115,9 +136,8 @@ class Sleep_Apples(Sleep_SHHS):
                 data_idx = data_idx[:-deleteIndxRaw]
             print("EDF数据比标签数据短, 删除最后{}个epoch".format(deleteIndxEpoch))
 
-        raw_ch = raw_ch_df.values[data_idx]  # 从原始数据中选择保留的indx对应的数值
+        raw_ch = raw_ch_df.values[data_idx]
 
-        # 再次验证数据能被30-s整除 epochs
         if len(raw_ch) % (EPOCH_SEC_SIZE * sampling_rate) != 0:
             raise Exception("原始数据不能被30S整除，有问题")
 
@@ -125,7 +145,6 @@ class Sleep_Apples(Sleep_SHHS):
         x = np.asarray(np.split(raw_ch, n_epochs)).astype(np.float32)
         y = labels.astype(np.int32)
 
-        # 确保数据和标签是对应的
         assert len(x) == len(y)
 
         return x, y
@@ -151,19 +170,17 @@ class Sleep_Apples(Sleep_SHHS):
                             select_ch: List[str] = None):
         if select_ch is None:
             select_ch = ["C3_M2"]
+        sampling_rate = 100
         annotFiles = []
-        list_200HZ = []
         raws = self.get_data(subjects)
         for i in subjects:
             annotFiles.append(self.label_path(i))
+            print(f'load subject label :{i}')
         for idx, subject in enumerate(subjects):
             rawdata = raws[subject]['session_0']['run_0']
+            if rawdata.info['sfreq'] != sampling_rate:
+                rawdata = rawdata.resample(sfreq=sampling_rate)
             annotdata = self.readAnnotFiles(annotFiles[idx][0][0])
-            sampling_rate = int(rawdata.info['sfreq'])
-            if sampling_rate != 100:
-                list_200HZ.append(subject)
-                continue
-
             raw_startTime = str(rawdata.info['meas_date']).split(" ")[1]
             raw_startTime = raw_startTime.split("+")[0]
             ann_startTime = annotdata.iloc[0, 1]
@@ -173,7 +190,7 @@ class Sleep_Apples(Sleep_SHHS):
                 continue
             durationSecond = len(annotdata) * 30
             labels = annotdata.iloc[:, 0].to_numpy()
-            mapping_function = np.frompyfunc(self._EVENTS.get, 1, 1)  # 将数组元素映射为对应的值
+            mapping_function = np.frompyfunc(self._EVENTS.get, 1, 1)
             labels = mapping_function(labels)
             data_idx = int(onsetSec * sampling_rate) + np.arange(durationSecond * sampling_rate, dtype=int)
             savePath_ch = update_path
@@ -189,10 +206,18 @@ class Sleep_Apples(Sleep_SHHS):
 
 
 if __name__ == "__main__":
-    dataPath = r'D:\sleep-data\Apples\raw'
-    path = r'D:\sleep-data\Apples\raw\C3_M2-ROC-LOC'
-    sleep = Sleep_Apples(dataPath=dataPath)
-    sleep.save_processed_data(update_path=dataPath, select_ch=["C3_M2", "ROC", "LOC"],subjects=[0])
-    data = sleep.get_processed_data(update_path=path, subjects=[0])
+    path = r'D:\sleep-data\Apples\raw'           # 原始数据raw_data存储地址
+    dataPath = r'D:\sleep-data\Apples\npz'       # 数据预处理后的npz_data存储地址
+    os.makedirs(dataPath, exist_ok=True)
+
+    subjects = [0, 1, 2]                         # None则代表处理所有被试
+    select_ch = ["C3_M2", "ROC", "LOC"]          # None则代表使用单通道"C3_M2"
+    num_classes = 2                              # 睡眠分期的分类任务，支持2-5类
+
+    sleep = Sleep_Apples(dataPath=path)
+    sleep.save_processed_data(update_path=dataPath, subjects=subjects, select_ch=select_ch)
+    print("Data preprocessing is complete.")
+    data = sleep.get_processed_data(update_path=dataPath, subjects=subjects, num_classes=num_classes)
     labels, read_datas = data[0], data[1]
-    print(read_datas)
+    print("labels.size: " + str(labels.size))
+    print("datas.shape: " + str(read_datas.shape))
