@@ -39,7 +39,7 @@ def cross_train_model(datas, n_splits=5, model_params=(1, 5), model_selection=En
         y_train_fold = y_train[train_index]
         X_val_fold = X_train[val_index]
         y_val_fold = y_train[val_index]
-        model.fit(X_train_fold, y_train_fold, valid_data=(X_val_fold, y_val_fold))
+        model.fit(X_train_fold, y_train_fold, test_data=(X_val_fold, y_val_fold))
         val_preds = model.predict(X_val_fold)
         val_labels = y_val_fold.cpu().numpy()
         all_pres.extend(val_preds)

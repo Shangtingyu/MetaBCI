@@ -71,7 +71,8 @@ def plotAnalyze(data: np.ndarray) -> None:
     plt.title("MDSK Sleep Stage Distribution")
 
     # Display the pie chart
-    plt.show()
+    # plt.show()
+
 
 
 def plotTime(ax, data: np.ndarray, flag_modi: bool = False, color: str = "blue", name: str = "") -> None:

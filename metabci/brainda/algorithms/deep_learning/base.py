@@ -228,7 +228,7 @@ class NeuralNetClassifierNoLog(NeuralNetClassifier):
             y_pred, y_true, *args, **kwargs
         )
 
-    def fit(self, X, y, valid_data=None, **fit_params):
+    def fit(self, X, y, test_data=None, **fit_params):
         """
             Fit the model to the training data and optionally validate using provided validation data.
 
@@ -240,7 +240,7 @@ class NeuralNetClassifierNoLog(NeuralNetClassifier):
             y : array-like, shape (n_samples,)
                 Target values.
 
-            valid_data : tuple, optional (default=None)
+            test_data : tuple, optional (default=None)
                 A tuple (X_valid, y_valid) representing the validation data.
                 If provided, it will be used for validation during training.
 
@@ -252,7 +252,7 @@ class NeuralNetClassifierNoLog(NeuralNetClassifier):
             self : object
             Returns the instance itself.
         """
-        self.custom_valid_data = valid_data
+        self.custom_valid_data = test_data
         file_name = f"checkpoints/{datetime.now().strftime('%Y%m%d_%H%M%S')}"
         checkpoint_callback = Checkpoint(dirname=file_name)
         print(f'model params path :{file_name}')
