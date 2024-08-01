@@ -67,6 +67,10 @@ class Sleep_SHHS(BaseDataset):
     ]
 
     def __init__(self, dataPath: str = None):
+        """
+            Args:
+                dataPath (str): Target storage address for raw data edf
+        """
         self.dataPath = dataPath
         super().__init__(
             dataset_code="shhs",
@@ -349,7 +353,6 @@ class Sleep_SHHS(BaseDataset):
         ValueError
             Raised if a subject is not valid.
         """
-        # Use default subjects if not provided
         if subjects is None:
             subjects = self.subjects
 
@@ -363,23 +366,16 @@ class Sleep_SHHS(BaseDataset):
 
     @staticmethod
     def readAnnotFiles(path_label):
-        """读取数据标签，同时如果有额外标签，返回的标志位置true"""
         flag_del = False
         tree = ET.parse(path_label)
         root = tree.getroot()
-        # 定义表格的列
         columns = ["EventConcept", "Start", "Duration"]
-        # 创建一个空的列表
         data = []
-        # 遍历XML中的ScoredEvents
         for scored_event in root.findall(".//ScoredEvent"):
             event_data = {}
-            # 遍历ScoredEvent中的子元素并添加到字典
             for element in scored_event:
                 event_data[element.tag] = element.text
-            # 只保留 EventType 为 Stages|Stages 的行
             if event_data.get("EventType") == "Stages|Stages":
-                # stage的名称替换
                 event_concept = event_data.get("EventConcept", "")
                 if event_concept == "Wake|0":
                     event_data["EventConcept"] = "W"
@@ -397,7 +393,6 @@ class Sleep_SHHS(BaseDataset):
                     print("存在名称问题:{},该文件跳过处理".format(event_data["EventConcept"]))
                     flag_del = True
                 data.append(event_data)
-        # 使用列表创建DataFrame
         df = pd.DataFrame(data, columns=columns)
 
         return df, flag_del

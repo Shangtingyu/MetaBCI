@@ -12,8 +12,6 @@ from pathlib import Path
 from typing import Union, List, Dict, Optional
 from metabci.brainda.datasets.sleep_shhs import Sleep_SHHS
 
-
-
 """
 This dataset is a non-public dataset.
 if you need this dataset, please contact this mailbox:
@@ -68,7 +66,10 @@ class Sleep_mros(Sleep_SHHS):
     ]
 
     def __init__(self, dataPath: str = None):
-
+        """
+            Args:
+                dataPath (str): Target storage address for raw data edf
+        """
         self.dataset_code = "mros"
         self.channels = self._CHANNELS,
         super().__init__(dataPath=dataPath)
@@ -196,13 +197,13 @@ class Sleep_mros(Sleep_SHHS):
 
 
 if __name__ == "__main__":
-    path = r'D:\sleep-data\mros\raw'           # 原始数据raw_data存储地址
-    dataPath = r'D:\sleep-data\mros\npz'       # 数据预处理后的npz_data存储地址
+    path = r'D:\sleep-data\mros\raw'  # 原始数据raw_data存储地址
+    dataPath = r'D:\sleep-data\mros\npz'  # 数据预处理后的npz_data存储地址
     os.makedirs(dataPath, exist_ok=True)
 
-    subjects = [0, 1, 2]                      # None则代表处理所有被试
-    select_ch = ["C3", "C4-A1"]               # None则代表使用单通道"C3"
-    num_classes = 4                           # 睡眠分期的分类任务，支持2-5类
+    subjects = [0, 1, 2]  # None则代表处理所有被试
+    select_ch = ["C3", "C4-A1"]  # None则代表使用单通道"C3"
+    num_classes = 4  # 睡眠分期的分类任务，支持2-5类
 
     sleep = Sleep_mros(dataPath=path)
     sleep.save_processed_data(update_path=dataPath, subjects=subjects, select_ch=select_ch)

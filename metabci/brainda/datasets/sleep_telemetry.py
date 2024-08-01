@@ -71,10 +71,8 @@ class Sleep_telemetry(BaseDataset):
 
     def __init__(self, dataPath: str = None):
         """
-
             Args:
                 dataPath (str): Target storage address for raw data edf
-
         """
         self.dataPath = dataPath
         self.sleep_URL = "https://physionet.org/files/sleep-edfx/1.0.0/sleep-telemetry/"
@@ -100,8 +98,6 @@ class Sleep_telemetry(BaseDataset):
         """
         If you don't have this data file, you need to download it online. This process can be slow.
 
-        Parameters
-        ----------
         Returns
         -------
         str
@@ -136,8 +132,6 @@ class Sleep_telemetry(BaseDataset):
             verbose: Optional[Union[bool, str, int]] = None,
     ) -> List[List[Union[str, Path]]]:
         """If you already have a local file and know the path to it
-        Parameters
-        ----------
 
         Returns
         -------

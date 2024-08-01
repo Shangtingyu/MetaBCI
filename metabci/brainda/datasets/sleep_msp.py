@@ -70,6 +70,10 @@ class Sleep_MSP(Sleep_Apples):
     ]
 
     def __init__(self, dataPath: str = None):
+        """
+            Args:
+                dataPath (str): Target storage address for raw data edf
+        """
         self.dataPath = dataPath
         self.dataset_code = "msp"
         self.events = self._EVENTS
@@ -141,8 +145,8 @@ class Sleep_MSP(Sleep_Apples):
 
 
 if __name__ == "__main__":
-    path = r'D:\sleep-data\msp\raw'           # 原始数据raw_data存储地址
-    dataPath = r'D:\sleep-data\msp\npz'       # 数据预处理后的npz_data存储地址
+    path = r'D:\sleep-data\msp\edfs'           # 原始数据raw_data存储地址
+    dataPath = r'D:\sleep-data\msp\F4_M1'       # 数据预处理后的npz_data存储地址
     os.makedirs(dataPath, exist_ok=True)
 
     subjects = [0, 1, 2]                      # None则代表处理所有被试

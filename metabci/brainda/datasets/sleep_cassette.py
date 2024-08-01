@@ -47,6 +47,10 @@ class Sleep_cassette(Sleep_telemetry):
     ]
 
     def __init__(self, dataPath: str = None):
+        """
+            Args:
+                dataPath (str): Target storage address for raw data edf
+        """
         super().__init__(
             dataPath=dataPath
         )
