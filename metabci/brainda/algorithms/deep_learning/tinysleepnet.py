@@ -12,7 +12,7 @@ class TinySleepNet(nn.Module):
         num_classes (int): The number of classes (2,3,4,5)
 
     Returns:
-    nn.Module: An instantiated AttnSleep model.
+    nn.Module: An instantiated Sleep model.
 
     Example:
     data : tensor(epoch, channel, data)
