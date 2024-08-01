@@ -209,7 +209,8 @@ class Sleep_SHHS(BaseDataset):
             annotFiles.append(self.label_path(i))
         for idx, subject in enumerate(subjects):
             rawdata = raws[subject]['session_0']['run_0']
-            rawdata = rawdata.resample(sfreq=sampling_rate)
+            if rawdata.info['sfreq'] != sampling_rate:
+                rawdata = rawdata.resample(sfreq=sampling_rate)
             annotFrame, flag_del = anns[subject]['session_0']['run_0']
             if flag_del:
                 continue

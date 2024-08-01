@@ -170,21 +170,17 @@ class Sleep_Apples(Sleep_SHHS):
                             select_ch: List[str] = None):
         if select_ch is None:
             select_ch = ["C3_M2"]
+        sampling_rate = 100
         annotFiles = []
-        list_200HZ = []
         raws = self.get_data(subjects)
         for i in subjects:
             annotFiles.append(self.label_path(i))
             print(f'load subject label :{i}')
-
         for idx, subject in enumerate(subjects):
             rawdata = raws[subject]['session_0']['run_0']
+            if rawdata.info['sfreq'] != sampling_rate:
+                rawdata = rawdata.resample(sfreq=sampling_rate)
             annotdata = self.readAnnotFiles(annotFiles[idx][0][0])
-            sampling_rate = int(rawdata.info['sfreq'])
-            if sampling_rate != 100:
-                list_200HZ.append(subject)
-                continue
-
             raw_startTime = str(rawdata.info['meas_date']).split(" ")[1]
             raw_startTime = raw_startTime.split("+")[0]
             ann_startTime = annotdata.iloc[0, 1]
