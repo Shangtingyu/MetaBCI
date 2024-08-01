@@ -203,10 +203,7 @@ class Sleep_SHHS(BaseDataset):
         raws = super().get_data(subjects)
         anns = self._get_label(subjects)
         sampling_rate = 100
-        annotFiles = []
         savePath_ch = update_path
-        for i in subjects:
-            annotFiles.append(self.label_path(i))
         for idx, subject in enumerate(subjects):
             rawdata = raws[subject]['session_0']['run_0']
             if rawdata.info['sfreq'] != sampling_rate:

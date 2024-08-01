@@ -467,7 +467,7 @@ class Sleep_telemetry(BaseDataset):
                            update_path: Optional[Union[str, Path]] = None,
                            proxies: Optional[Dict[str, str]] = None,
                            verbose: Optional[Union[bool, str, int]] = None,
-                           num_classes: Optional[int] = 5,) \
+                           num_classes: Optional[int] = 5) \
             -> list:
         """
             Read data from .npz files saved in the specified path for specified subjects.

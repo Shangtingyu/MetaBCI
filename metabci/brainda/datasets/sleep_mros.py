@@ -10,9 +10,8 @@ import pandas as pd
 import os
 from pathlib import Path
 from typing import Union, List, Dict, Optional
-
 from metabci.brainda.datasets.sleep_shhs import Sleep_SHHS
-import glob
+
 
 
 """
