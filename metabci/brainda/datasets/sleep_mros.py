@@ -19,20 +19,33 @@ This dataset is a non-public dataset.
 if you need this dataset, please contact this mailbox:
 xingjian.zhang@mindmatrixes.com
 or download it here:
-https://pan.baidu.com/s/1WBZIOO4-D95SK7KJw_6YCA?pwd=mdsk
+https://pan.baidu.com/s/1Tr9dj1jNJfcfNPv9H74TLA?pwd=mdsk 
 """
 
 
 class Sleep_mros(Sleep_SHHS):
     """
-    Dataset from:
-    Zhang GQ, Cui L, Mueller R, Tao S, Kim M, Rueschman M, Mariani S, Mobley D, Redline S.
-    The National Sleep Research Resource: towards a sleep data commons. J Am Med Inform Assoc.
-    2018 Oct 1;25(10):1351-1358. doi: 10.1093/jamia/ocy064. PMID: 29860441; PMCID: PMC6188513.
-    https://sleepdata.org/datasets/nfs
+        This is the class for the Mros dataset and contains functions for getting and reading raw data and
+        label, data processing and saving, reading processed data.
+        Methods:
+        save_processed_data(subjects,select_ch,update_path):
+            For the original dataset that has been stored, the original dataset is processed and saved as npz file
+            in the specified path.
+        get_processed_data(subjects,select_ch,update_path):
+            Read the processed data file,return [labels, datas]
 
+        Dataset from:
+        T. Blackwell et al., “Associations Between Sleep Architecture and Sleep‐Disordered Breathing and Cognition in
+        Older Community‐Dwelling Men: The Osteoporotic Fractures in Men Sleep Study,” J American Geriatrics Society,
+        vol. 59, no. 12, pp. 2217–2225, Dec. 2011, doi: 10.1111/j.1532-5415.2011.03731.x.
+
+        MrOS is an ancillary study of the parent Osteoporotic Fractures in Men Study. Between 2000 and 2002, 5,994
+        community-dwelling men 65 years or older were enrolled at 6 clinical centers in a baseline examination.
+        Between December 2003 and March 2005, 3,135 of these participants were recruited to the Sleep Study when they
+        underwent full unattended polysomnography and 3 to 5-day actigraphy studies. The objectives of the Sleep Study
+        are to understand the relationship between sleep disorders and falls, fractures, mortality, and vascular disease.
     """
-    EPOCH_SEC_SIZE = 30
+
     _EVENTS = {
         "W": 0,
         "N1": 1,
@@ -40,7 +53,19 @@ class Sleep_mros(Sleep_SHHS):
         "N3": 3,
         "R": 4
     }
-    _CHANNELS = ["EEG", "EOG(L)", "EOG(R)"]
+
+    _CHANNELS = [
+        "C3",
+        "C4",
+        "A1",
+        "A2",
+        "ROC",
+        "LOC",
+        "ECG L",
+        "ECG R",
+        "L Chin",
+        "R Chin"
+    ]
 
     def __init__(self, dataPath: str = None):
 
@@ -77,7 +102,7 @@ class Sleep_mros(Sleep_SHHS):
         """
 
         if select_ch is None:
-            select_ch = ["C3-A2", "C3-A1"]
+            select_ch = ["C3"]
         self.update_path = update_path
         if subjects is None:
             subjects = self.subjects
@@ -91,18 +116,10 @@ class Sleep_mros(Sleep_SHHS):
                 result.append(string.split('-'))
             else:
                 result.append([string])
-        print(result)
         for subject in subjects:
-            # raw_info = read_raw_edf(psgFiles[i], preload=False, verbose=False).info
-            # sampling_rate = raw_info['sfreq']
-            #
-            # list_otherHZ = []
-            # if sampling_rate != 1024:
-            #     list_otherHZ.append(i)
-            #     print("这个文件采样率为{}".format(sampling_rate))
-            #     continue
             rawdata = raws[subject]['session_0']['run_0']
-            rawdata = rawdata.resample(sfreq=sampling_rate)
+            if rawdata.info['sfreq'] != sampling_rate:
+                rawdata = rawdata.resample(sfreq=sampling_rate)
             df = rawdata.to_data_frame()
             diff = []
             for ch in result:
@@ -116,7 +133,6 @@ class Sleep_mros(Sleep_SHHS):
                     diff_signal = df[select_ch1]
                     diff_signal = diff_signal.to_frame()
                 diff.append(diff_signal)
-            print(diff)
             raw_ch2_df = pd.concat(diff, axis=1)
             raw_ch2_df.set_index(np.arange(len(raw_ch2_df)))
             del diff_signal
@@ -139,7 +155,6 @@ class Sleep_mros(Sleep_SHHS):
             durationSecond = len(labels) * 30
             data_idx = np.arange(durationSecond * sampling_rate, dtype=int)
 
-            # 可能存在结尾EDF数据比标签数据短的情况（数据损坏导致的？）
             if data_idx[-1] > len(raw_ch2_df) - 1:
                 deleteIndx = data_idx[-1] - (len(raw_ch2_df) - 1)
                 deleteIndxEpoch = int(deleteIndx // (EPOCH_SEC_SIZE * sampling_rate))  # 取整
@@ -155,35 +170,44 @@ class Sleep_mros(Sleep_SHHS):
                     data_idx = data_idx[:-deleteIndxRaw]
                 print("EDF数据比标签数据短, 删除最后{}个epoch".format(deleteIndxEpoch))
 
-            raw_ch2_df = raw_ch2_df.values[data_idx]  # 从原始数据中选择保留的indx对应的数值
+            raw_ch2_df = raw_ch2_df.values[data_idx]
             del data_idx
             if len(raw_ch2_df) % (EPOCH_SEC_SIZE * sampling_rate) != 0:
                 raise Exception("原始数据不能被30S整除，有问题")
 
             n_epochs = int(len(raw_ch2_df) / (EPOCH_SEC_SIZE * sampling_rate))
-            x_ch2 = np.asarray(np.split(raw_ch2_df, n_epochs)).astype(np.float32)
+            x_ch = np.asarray(np.split(raw_ch2_df, n_epochs)).astype(np.float32)
             y = labels.astype(np.int32)
 
-            # 确保数据和标签是对应的
-            assert len(x_ch2) == len(y)
+            assert len(x_ch) == len(y)
 
             del annotFrame
             del resultFrame
             del labels
 
             filename = ntpath.basename(self.data_path(subject)[0][0]).split("/")[-1].replace(".edf", ".npz")
-            save_dict_2CH = {
-                "x": x_ch2,
+            save_dict = {
+                "x": x_ch,
                 "y": y,
+                "fs": sampling_rate,
+                "ch_label": select_ch,
             }
-            np.savez(os.path.join(update_path, filename), **save_dict_2CH)
+            np.savez(os.path.join(update_path, filename), **save_dict)
 
 
 if __name__ == "__main__":
-    dataPath = r'D:\sleep-data\mros\edfs'
-    path = r'D:\sleep-data\mros\1'
-    sleep = Sleep_mros(dataPath=dataPath)
-    sleep.save_processed_data(update_path=path, subjects=[0])
-    data = sleep.get_processed_data(update_path=path, subjects=[0])
+    path = r'D:\sleep-data\mros\raw'           # 原始数据raw_data存储地址
+    dataPath = r'D:\sleep-data\mros\npz'       # 数据预处理后的npz_data存储地址
+    os.makedirs(dataPath, exist_ok=True)
+
+    subjects = [0, 1, 2]                      # None则代表处理所有被试
+    select_ch = ["C3", "C4-A1"]               # None则代表使用单通道"C3"
+    num_classes = 4                           # 睡眠分期的分类任务，支持2-5类
+
+    sleep = Sleep_mros(dataPath=path)
+    sleep.save_processed_data(update_path=dataPath, subjects=subjects, select_ch=select_ch)
+    print("Data preprocessing is complete.")
+    data = sleep.get_processed_data(update_path=dataPath, subjects=subjects, num_classes=num_classes)
     labels, read_datas = data[0], data[1]
-    print(read_datas)
+    print("labels.size: " + str(labels.size))
+    print("datas.shape: " + str(read_datas.shape))

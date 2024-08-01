@@ -126,4 +126,5 @@ if __name__ == "__main__":
     print("Data preprocessing is complete.")
     data = sleep.get_processed_data(update_path=dataPath, subjects=subjects, num_classes=num_classes)
     labels, read_datas = data[0], data[1]
-    print(read_datas)
+    print("labels.size: " + str(labels.size))
+    print("datas.shape: " + str(read_datas.shape))
