@@ -7,7 +7,6 @@ from metabci.brainda.algorithms.deep_learning.AttnSleep import SkorchNet_sleep
 class DeepSleepNet(nn.Module):
     """
     A class to select and instantiate a specific DeepSleepNet model based on the number of classes.
-
     Parameters
         num_classes (int): The number of classes (2,3,4,5)
 

@@ -40,7 +40,7 @@ Now metabci provides a great framework to help us do that!
 This fork of MetaBCI will:
 
 * Allow users to download sleep staging data via URL or get it directly locally
-* add an abstraction method in brainda.datasets.base for preprocessing and reading
+* add a method in brainda.datasets.base for preprocessing and reading
 * provide the latest sleep staging algorithm - Attensleep(suitable for one, two or three channels of data)
 * Provide sleep staging demo code based on eegnet and Attensleep
 
@@ -49,23 +49,51 @@ The goal of this fork of MetaBCI is to enables users to use the MetaBCI platform
 ## Features
 
 * Improvements to base datasets
-   - add abstraction method for preprocessing and save raw dataset
-   - add abstraction method for read data and label
+   - add method for preprocessing and save raw dataset
+   - add method for read data and label
 * Improvements to base deep_learning 
    - add AvgPool1dWithConv method for average pooling of 1d data
    - improve MaxNormConstraintConv2d for data in any dimension
 
 * New Supported Datasets
-   - SI Datasets
-     - sleep_edf: cited by https://physionet.org/content/sleep-edfx/1.0.0/
+   - SS Datasets
+     - sleep_telemetry: cited by 
+        > M. S. Mourtazaev, B. Kemp, A. H. Zwinderman, and H. A. C. Kamphuisen, “Age and Gender Affect Different
+    Characteristics of Slow Waves in the Sleep EEG,” Sleep, vol. 18, no. 7, pp. 557–564, Sep. 1995, doi: 10.1093/sleep/18.7.557
+     - sleep_cassette: cited by 
+        > B. Kemp, A. H. Zwinderman, B. Tuk, H. A. C. Kamphuisen, and J. J. L. Oberye, “Analysis of a sleep-dependent
+        neuronal feedback loop: the slow-wave microcontinuity of the EEG,” IEEE Trans. Biomed. Eng.,
+        vol. 47, no. 9, pp. 1185–1194, Sep. 2000, doi: 10.1109/10.867928.
+     - sleep_shhs: cited by 
+        > S. Quan et al., “The Sleep Heart Health Study: design, rationale, and methods,” Sleep,
+        vol. 20, no. 12, pp. 1077–1085, Dec. 1997, doi: 10.1093/sleep/20.12.1077.
+     - sleep_apples: cited by
+        > S. F. Quan et al., “The Association between Obstructive Sleep Apnea and Neurocognitive Performance—The Apnea
+        Positive Pressure Long-term Efficacy Study (APPLES),” Sleep, vol. 34, no. 3, pp. 303–314, Mar. 2011,
+        doi: 10.1093/sleep/34.3.303.
+     - sleep_msp: cited by
+        > DiPietro JA, Raghunathan RS, Wu HT, Bai J, Watson H, Sgambati FP, Henderson JL, Pien GW. Fetal heart rate
+        during maternal sleep. Dev Psychobiol. 2021 Jul;63(5):945-959. doi: 10.1002/dev.22118. Epub 2021 Mar 25.
+        PMID: 33764539.
+     - sleep_msro: cited by 
+        > T. Blackwell et al., “Associations Between Sleep Architecture and Sleep‐Disordered Breathing and Cognition in
+        Older Community‐Dwelling Men: The Osteoporotic Fractures in Men Sleep Study,” J American Geriatrics Society,
+        vol. 59, no. 12, pp. 2217–2225, Dec. 2011, doi: 10.1111/j.1532-5415.2011.03731.x.
 
 * New BCI algorithms
    - Deep Learning
-     - AttnSleep: cited by https://github.com/emadeldeen24/AttnSleep
+     - AttnSleep: cited by
+        > E. Eldele et al., “An Attention-Based Deep Learning Approach for Sleep Stage Classification With Single-Channel EEG,” IEEE Trans. Neural Syst. Rehabil. Eng., vol. 29, pp. 809-818, 2021, doi: 10.1109/TNSRE.2021.3076234.
+     - tinysleepnet: cited by 
+        > A. Supratak et al., "TinySleepNet: An Efficient Deep Learning Model for Sleep Stage Scoring based on Raw Single-Channel EEG," 2020 42nd Annual International Conference of the IEEE Engineering in Medicine & Biology Society (EMBC), Montreal, QC, Canada, 2020, pp. 641-644, doi: 10.1109/EMBC44109.2020.9176741.
+     - deepsleepnet: cited by 
+        > A. Supratak et al.,  "DeepSleepNet: A Model for Automatic Sleep Stage Scoring Based on Raw Single-Channel EEG," in IEEE Transactions on Neural Systems and Rehabilitation Engineering, vol. 25, no. 11, pp. 1998-2008, Nov. 2017, doi: 10.1109/TNSRE.2017.2721116.
 
-* New demo
-   - Attnsleep_run
-   - eegnet-run
+* New demo and methods:
+   - run : Demonstration of the overall process of sleep staging
+   - predict : Save prediction labels and prediction scores
+   - show : show sleep trend graphs and staging percentage pie charts
+   - smooth : Smoothing of predicted labels
 
 
 ## Installation

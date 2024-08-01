@@ -4,10 +4,10 @@ import matplotlib.pyplot as plt
 import matplotlib.dates as mdates
 from datetime import datetime, timedelta
 
-from demo_sleep.predict import save_res_pre
+from demo_sleep.predict import save_res_pre, save_pre_score
 from demo_sleep.smooth import smooth
 from metabci.brainda.datasets.sleep_telemetry import Sleep_telemetry
-from metabci.brainda.utils.performance import Performance
+from metabci.brainda.utils.performance import Performance, _confusion_matrix
 
 # plt.rcParams是一个全局配置对象,设置显示中文字体和负号
 plt.rcParams['font.family'] = 'DejaVu Sans'
@@ -204,11 +204,11 @@ def plotTime(ax, data: np.ndarray, flag_modi: bool = False, color: str = "blue",
 
 
 def main():
-    performance = Performance(estimators_list=["Acc", "TPR", "FNR", "TNR"])
-    datapath = r'D:\shhs\EEG_EOG'
-    parampath = r'C:\Users\86130\PycharmProjects\MetaBCI\demo_sleep\checkpoints\20240723_151225\params.pt'
+    performance = Performance(estimators_list=["Acc", "TPR", "FNR", "TNR"], isdraw=True)
+    datapath = r'D:\sleep-data\ST\EEG Fpz-Cz'
+    parampath = r'D:\metabci\demo_sleep\checkpoints\ST-Fpz-Cz\params.pt'
     sleep_data = Sleep_telemetry()
-    datas = sleep_data.get_processed_data(subjects=[38], update_path=datapath)
+    datas = sleep_data.get_processed_data(subjects=[15], update_path=datapath)
     y_predict = save_res_pre(datas[1], parampath)
     y_true = datas[0]
     y_predict_sm = smooth(y_predict)
