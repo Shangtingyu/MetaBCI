@@ -46,18 +46,24 @@ class Sleep_cassette(Sleep_telemetry):
         'EMG submental'
     ]
 
-    def __init__(self, dataPath: str = None):
+    def __init__(self, dataPath: str = None, subjects=None):
         """
             Args:
                 dataPath (str): Target storage address for raw data edf
+                subjects (list): List of subject numbers,defaults to all subjects
         """
-        super().__init__(
-            dataPath=dataPath
-        )
+        self.dataset_code = 'sleep_cassette'
         self.dataPath = dataPath
         self.update_path = None
-        self.subjects = list(range(152))
+        if subjects is None:
+            subjects = list(range(50))
+        self.subjects = subjects
         self.sleep_URL = 'https://physionet.org/files/sleep-edfx/1.0.0/sleep-cassette/'
+        self.paradigm = "sleep stage"
+        super().__init__(
+            dataPath=dataPath,
+            subjects=subjects
+        )
 
     @staticmethod
     def read_data_name(line_number):
@@ -72,20 +78,15 @@ class Sleep_cassette(Sleep_telemetry):
             tuple: (data_list, label) where data_list is from 'psg_filenames.txt'
                    and label is from 'Hypnogram_filenames.txt'.
         """
-        # Get the absolute path to the current file
         current_file = os.path.abspath(__file__)
         project_root = current_file
-
-        # Find the project root directory
         while not os.path.isfile(os.path.join(project_root, 'setup.py')):
             parent_dir = os.path.dirname(project_root)
             if parent_dir == project_root:  # Reached the root directory
                 raise FileNotFoundError("setup.py not found in any parent directory")
             project_root = parent_dir
-
         hypnogram_file_path = os.path.join(project_root, 'docs', 'cassette_Hypnogram.txt')
         psg_file_path = os.path.join(project_root, 'docs', 'cassette_psg.txt')
-
         try:
             with open(hypnogram_file_path, 'r', encoding='utf-8') as file:
                 for current_line_number, line in enumerate(file, start=1):
@@ -117,13 +118,13 @@ class Sleep_cassette(Sleep_telemetry):
 
 
 if __name__ == "__main__":
-    path = r'D:\sleep-data\SC\raw'                                      # 原始数据raw_data存储地址，没有则会自动下载
-    dataPath = r'D:\sleep-data\SC\npz'                                  # 数据预处理后的npz_data存储地址
+    path = r'D:\sleep-data\SC\raw'  # 原始数据raw_data存储地址，没有则会自动下载
+    dataPath = r'D:\sleep-data\SC\npz'  # 数据预处理后的npz_data存储地址
     os.makedirs(dataPath, exist_ok=True)
 
-    subjects = [0, 1, 2]                                                # None则代表处理所有被试
-    select_ch = ["EEG Fpz-Cz", "EEG Pz-Oz", "EOG horizontal"]           # None则代表使用单通道"EEG Fpz-Cz"
-    num_classes = 3                                                     # 睡眠分期的分类任务，支持2-5类
+    subjects = [0, 1, 2]  # None则代表处理所有被试
+    select_ch = ["EEG Fpz-Cz", "EEG Pz-Oz", "EOG horizontal"]  # None则代表使用单通道"EEG Fpz-Cz"
+    num_classes = 3  # 睡眠分期的分类任务，支持2-5类
 
     sleep = Sleep_cassette(dataPath=path)
     sleep.save_processed_data(update_path=dataPath, subjects=subjects, select_ch=select_ch)

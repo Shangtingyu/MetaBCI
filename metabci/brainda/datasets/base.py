@@ -62,6 +62,7 @@ class BaseDataset(metaclass=ABCMeta):
             - imagery
             - ssvep
             - ssavep
+            - sleep stage
         """
         self.dataset_code = dataset_code
         self.subjects = subjects

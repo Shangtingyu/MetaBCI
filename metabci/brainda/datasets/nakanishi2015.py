@@ -101,6 +101,7 @@ class Nakanishi2015(BaseDataset):
         montage.rename_channels(
             {ch_name: ch_name.upper() for ch_name in montage.ch_names}
         )
+
         # montage.ch_names = [ch_name.upper() for ch_name in montage.ch_names]
 
         dests = self.data_path(subject)

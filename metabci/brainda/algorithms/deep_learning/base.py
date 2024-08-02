@@ -255,21 +255,19 @@ class NeuralNetClassifierNoLog(NeuralNetClassifier):
         self.custom_valid_data = test_data
         file_name = f"checkpoints/{datetime.now().strftime('%Y%m%d_%H%M%S')}"
         checkpoint_callback = Checkpoint(dirname=file_name)
-        print(f'model params path :{file_name}')
-        self.callbacks.append(("checkpoint", checkpoint_callback))
+        print(f'Model params path: {file_name}')
 
-        # Fit the model
+        if not any(cb[0] == "checkpoint" for cb in self.callbacks):
+            self.callbacks.append(("checkpoint", checkpoint_callback))
+
         net = super(NeuralNetClassifierNoLog, self).fit(X, y, **fit_params)
 
         callbacks = OrderedDict(net.callbacks)
         if "checkpoint" in callbacks:
             net.load_params(checkpoint=callbacks["checkpoint"])
 
-        # Remove checkpoint callback after fitting
         self.callbacks = [cb for cb in self.callbacks if cb[0] != "checkpoint"]
-        callbacks = OrderedDict(net.callbacks)
-        if "checkpoint" in callbacks:
-            net.load_params(checkpoint=callbacks["checkpoint"])
+
         return net
 
     def get_split_datasets(self, X, y=None, **fit_params):
@@ -297,7 +295,6 @@ class SkorchNet:
 
     def __call__(self, *args, **kwargs):
         model = self.module(*args, **kwargs)
-        print(torch.cuda.is_available())
         net = NeuralNetClassifierNoLog(
             model.float(),
             criterion=nn.CrossEntropyLoss,
@@ -322,10 +319,7 @@ class SkorchNet:
                 ),
                 ("lr_scheduler", LRScheduler("CosineAnnealingLR", T_max=300 - 1)),
                 ("estoper", EarlyStopping(monitor="valid_acc", patience=50, lower_is_better=False)),
-                (
-                    "checkpoint",
-                    Checkpoint(dirname="checkpoints/{:s}".format(str(id(model)))),
-                ),
+
             ],
             verbose=True,
         )

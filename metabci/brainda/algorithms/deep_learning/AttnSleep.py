@@ -13,6 +13,9 @@ import math
 import copy
 from copy import deepcopy
 from datetime import datetime
+
+from skorch.dataset import ValidSplit
+
 from metabci.brainda.algorithms.deep_learning.base import SkorchNet, NeuralNetClassifierNoLog
 from skorch.callbacks import LRScheduler, EpochScoring, Checkpoint, EarlyStopping, Callback
 import torch.optim as optim
@@ -469,13 +472,10 @@ class BestEpochCallback(Callback):
 class SkorchNet_sleep:
     def __init__(self, module):
         self.module = module
-        self.net = None
 
     def __call__(self, *args, **kwargs):
-        if self.net is not None:
-            return self.net
         model = self.module(*args, **kwargs)
-        self.net = NeuralNetClassifierNoLog(
+        net = NeuralNetClassifierNoLog(
             module=model.float(),
             criterion=nn.CrossEntropyLoss(),
             optimizer=optim.AdamW,
@@ -493,7 +493,7 @@ class SkorchNet_sleep:
             ],
             verbose=True,
         )
-        return self.net
+        return net
 
 
 @SkorchNet_sleep
@@ -526,7 +526,7 @@ class AttnSleep_1CH(nn.Module):
 
 @SkorchNet_sleep
 class AttnSleep_2CH(nn.Module):
-    """双通道（1个EEG+1个EOG）输入,分别通过MRCNN+AFR+TCE后合并，再输入分类模块"""
+    """双通道输入,分别通过MRCNN+AFR+TCE后合并，再输入分类模块"""
 
     def __init__(self, num_classes):
         super().__init__()
@@ -535,7 +535,7 @@ class AttnSleep_2CH(nn.Module):
         d_model = 80  # 用于表示TCE模型中全连接层的神经元个数
         d_ff = 120  # 前馈神经网络的维度，通常用于处理注意力层的输出
         h = 5  # 多头注意力机制中的注意力头的数量, 这里代表划分为子空间的个数
-        dropout = 0.3  # TCE模型中的丢弃率10%，MRCNN是50%
+        dropout = 0.3  # TCE模型中的丢弃率30%，MRCNN是50%
         afr_reduced_cnn_size = 30  # SE block中的通道数
 
         self.mrcnn_EEG = MRCNN(afr_reduced_cnn_size)
@@ -637,9 +637,9 @@ class AttnSleep:
     """
     A class to select and instantiate a specific AttnSleep model based on the number of channels and classes.
 
-    Parameters:
+    Args:
     ch (int): The number of channels (1, 2, or 3).
-    num_classes (int): The number of classes (3 or 5).
+    num_classes (int): The number of classes (2,3,4,5).
 
     Returns:
     nn.Module: An instantiated AttnSleep model.

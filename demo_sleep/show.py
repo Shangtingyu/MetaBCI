@@ -71,8 +71,8 @@ def plotAnalyze(data: np.ndarray) -> None:
     plt.title("MDSK Sleep Stage Distribution")
 
     # Display the pie chart
-    # plt.show()
-
+    plt.show()
+    plt.clf()
 
 
 def plotTime(ax, data: np.ndarray, flag_modi: bool = False, color: str = "blue", name: str = "") -> None:
@@ -167,23 +167,18 @@ def plotTime(ax, data: np.ndarray, flag_modi: bool = False, color: str = "blue",
                                 if i + j < len(data):
                                     data[i + j] = 2
                 else:
-                    rem_count = 0  # Reset the count
+                    rem_count = 0
 
-    # Start time (9 PM)
     start_time = datetime.strptime("21:00", "%H:%M")
 
-    # Generate time axis
     time_axis = [start_time + timedelta(seconds=i * time_interval) for i in range(len(data))]
 
-    # Plot horizontal lines and connecting vertical lines
     for i in range(len(data) - 1):
         t1, t2 = time_axis[i], time_axis[i + 1]
         value1, value2 = data[i], data[i + 1]
 
-        # Plot horizontal line
         ax.hlines(value1, t1, t2, colors=color)
 
-        # If values change, plot connecting vertical line
         if value1 != value2:
             ax.vlines(t2, min(value1, value2), max(value1, value2), colors=color)
 
@@ -198,7 +193,6 @@ def plotTime(ax, data: np.ndarray, flag_modi: bool = False, color: str = "blue",
     ax.set_yticklabels(list(sleep_stages.values()))
     ax.invert_yaxis()  # Invert Y-axis
 
-    # Format the x-axis time display
     ax.xaxis.set_major_formatter(mdates.DateFormatter('%H:%M'))
     ax.xaxis.set_major_locator(mdates.HourLocator(interval=1))
     plt.setp(ax.get_xticklabels(), ha='center')
@@ -206,23 +200,23 @@ def plotTime(ax, data: np.ndarray, flag_modi: bool = False, color: str = "blue",
 
 def main():
     performance = Performance(estimators_list=["Acc", "TPR", "FNR", "TNR"], isdraw=True)
-    datapath = r'D:\sleep-data\ST\EEG Fpz-Cz'
-    parampath = r'D:\metabci\demo_sleep\checkpoints\ST-Fpz-Cz\params.pt'
+    datapath = r'D:\sleep-data\ST\EEG Fpz-Cz'  # 数据预处理后的npz_data存储地址
+    parampath = r'D:\metabci\demo_sleep\checkpoints\20240802_100342\params.pt'  # 保存模型参数的地址
     sleep_data = Sleep_telemetry()
-    datas = sleep_data.get_processed_data(subjects=[15], update_path=datapath)
+    subjects = [1]  # 对于作图只能有一个对象
+    datas = sleep_data.get_processed_data(subjects=subjects, update_path=datapath)
     y_predict = save_res_pre(datas[1], parampath)
     y_true = datas[0]
     y_predict_sm = smooth(y_predict)
-    print(performance.evaluate(y_true, y_predict))
+    print(performance.evaluate(y_true, y_predict))  # 打印评估结果
     print(performance.evaluate(y_true, y_predict_sm))
-    plotAnalyze(y_predict_sm)
+    plotAnalyze(y_predict_sm)  # 绘制分期占比饼图
     fig, axs = plt.subplots(3, 1, figsize=(15, 10))
     plotTime(axs[0], y_true, flag_modi=False, color="black", name="PSG true label")
     plotTime(axs[1], y_predict, flag_modi=False, color="GoldenRod", name="prediction")
     plotTime(axs[2], y_predict_sm, flag_modi=False, color="GoldenRod", name="smooth prediction")
-
     plt.tight_layout()
-    plt.show()
+    plt.show()  # 绘制分期趋势图
 
 
 if __name__ == "__main__":

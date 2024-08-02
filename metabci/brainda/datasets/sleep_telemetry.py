@@ -69,21 +69,21 @@ class Sleep_telemetry(BaseDataset):
         'EMG submental'
     ]
 
-    def __init__(self, dataPath: str = None):
+    def __init__(self, dataPath: str = None, subjects:List = None):
         """
             Args:
                 dataPath (str): Target storage address for raw data edf
+                subjects (list): List of subject numbers,defaults to all subjects
         """
         self.dataPath = dataPath
         self.sleep_URL = "https://physionet.org/files/sleep-edfx/1.0.0/sleep-telemetry/"
         super().__init__(
-            dataset_code="sleep_edf",
+            dataset_code="sleep_telemetry",
             subjects=list(range(44)),
             events=self._EVENTS,
             channels=self._CHANNELS,
-            srate=250,
+            srate=100,
             paradigm="sleep stage",
-
         )
 
     def data_path_url(
@@ -455,6 +455,7 @@ class Sleep_telemetry(BaseDataset):
                 "ch_label": select_ch,
             }
             np.savez(os.path.join(update_path, filename), **save_dict)
+            print(f'successfully process subject:{subject}')
 
     def get_processed_data(self,
                            subjects: List[Union[int, str]] = None,

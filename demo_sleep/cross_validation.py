@@ -5,7 +5,6 @@
 # License: MIT License
 import os
 from datetime import datetime
-
 import numpy as np
 import torch
 from sklearn.metrics import confusion_matrix
@@ -60,11 +59,12 @@ def cross_train_model(datas, n_splits=5, model_params=(1, 5), model_selection=En
 
 
 def main():
-    npz_path = r'/data/xingjain.zhang/sleep/1_npzdata/SC/01_SC_FPZ-Cz'
-    sleep = Sleep_telemetry(npz_path)
+    npz_path = r'/data/xingjain.zhang/sleep/1_npzdata/SC/01_SC_FPZ-Cz'  # 原始数据raw_data存储地址
+    sleep = Sleep_telemetry()
     subjects = list(range(30))
     data = sleep.get_processed_data(update_path=npz_path, subjects=subjects,num_classes=2)
-    cross_train_model(data, model_params=(1, 2))
+    model_params = (1, 2)  # 模型的通道和分类门数
+    cross_train_model(data, model_params=model_params)
 
 
 if __name__ == '__main__':
