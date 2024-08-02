@@ -56,7 +56,7 @@ class Sleep_cassette(Sleep_telemetry):
         self.dataPath = dataPath
         self.update_path = None
         if subjects is None:
-            subjects = list(range(50))
+            subjects = list(range(153))
         self.subjects = subjects
         self.sleep_URL = 'https://physionet.org/files/sleep-edfx/1.0.0/sleep-cassette/'
         self.paradigm = "sleep stage"

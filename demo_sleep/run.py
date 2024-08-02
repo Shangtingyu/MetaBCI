@@ -23,7 +23,7 @@ os.makedirs(dataPath, exist_ok=True)
 train_subjects = None  # None则代表处理所有被试
 test_subjects = [11]
 select_ch = ["EEG Fpz-Cz"]  # None则代表使用单通道"EEG Fpz-Cz"
-num_classes = 5  # 睡眠分期的分类任务，支持2-5类
+num_classes = 3  # 睡眠分期的分类任务，支持2-5类
 sleep = MSP(dataPath=path)
 # sleep.save_processed_data(update_path=dataPath, subjects=train_subjects, select_ch=select_ch)
 print("Data preprocessing is complete.")
