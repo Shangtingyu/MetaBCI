@@ -1,10 +1,14 @@
 # MetaBCI
 
 ## Welcome! 
-MetaBCI is an open source, non-invasive brain computer interface platform.The MetaBCI project is led by Prof. Minpeng Xu of Tianjin University, China. This fork of MetaBCI is made of Hangzhou Mind Matrixes Technology Co. The branch has 3 main additional contributions:
-* datasets: add sleep_edf dataset for import, pre-processing, reading EEG data and decoding algorithms
-* deepl_learning: add Attnsleep model for sleep stage with a multiple attention model
-* sleep_run: main file for instantiating datasets, deep_learning model, fit and train model, evaluate result
+MetaBCI is an open source, non-invasive brain computer interface platform.The MetaBCI project is led by Prof. Minpeng Xu of Tianjin University, China. This fork of MetaBCI was developed by Hangzhou Mind Matrixes Technology Co. 
+The primary contribution of this branch is enabling MetaBCI to support deep learning-based sleep staging scenarios. This allows new users to quickly and easily develop AI-driven sleep staging models using single-channel or multi-channel data on the MetaBCI platform. Specifically, the sleep staging task is divided into three sections: data, algorithm, and result.
+
+* Data Section: Provides data acquisition, preprocessing, and storage functionalities.
+* Algorithm Section: Offers single-channel and multi-channel algorithm models.
+* Result Section: Supports model training and testing, and displays prediction results.
+
+![img_3.png](img_3.png)
 
 All of the above is based on MetaBCI. And we also rewrote and added some basic classes.
 
@@ -82,11 +86,11 @@ The goal of this fork of MetaBCI is to enables users to use the MetaBCI platform
 
 * New BCI algorithms
    - Deep Learning
-     - AttnSleep: cited by
+     - AttnSleepNet: cited by
         > E. Eldele et al., “An Attention-Based Deep Learning Approach for Sleep Stage Classification With Single-Channel EEG,” IEEE Trans. Neural Syst. Rehabil. Eng., vol. 29, pp. 809-818, 2021, doi: 10.1109/TNSRE.2021.3076234.
-     - tinysleepnet: cited by 
+     - TinySleepNet: cited by 
         > A. Supratak et al., "TinySleepNet: An Efficient Deep Learning Model for Sleep Stage Scoring based on Raw Single-Channel EEG," 2020 42nd Annual International Conference of the IEEE Engineering in Medicine & Biology Society (EMBC), Montreal, QC, Canada, 2020, pp. 641-644, doi: 10.1109/EMBC44109.2020.9176741.
-     - deepsleepnet: cited by 
+     - DeepSleepNet: cited by 
         > A. Supratak et al.,  "DeepSleepNet: A Model for Automatic Sleep Stage Scoring Based on Raw Single-Channel EEG," in IEEE Transactions on Neural Systems and Rehabilitation Engineering, vol. 25, no. 11, pp. 1998-2008, Nov. 2017, doi: 10.1109/TNSRE.2017.2721116.
 
 * New demo and methods:
