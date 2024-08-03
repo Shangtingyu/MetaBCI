@@ -8,7 +8,7 @@ The primary contribution of this branch is enabling MetaBCI to support deep lear
 * Algorithm Section: Offers single-channel and multi-channel algorithm models.
 * Result Section: Supports model training and testing, and displays prediction results.
 
-![img_3.png](img_3.png)
+![img_3.png](D:\python\Pycharm\metabci_0804\img.jpg)
 
 All of the above is based on MetaBCI. And we also rewrote and added some basic classes.
 
@@ -43,10 +43,10 @@ If a fresh man wishes to obtain EEG data and labels for sleep staging, he needs 
 Now metabci provides a great framework to help us do that!
 This fork of MetaBCI will:
 
-* Allow users to download sleep staging data via URL or get it directly locally
-* add a method in brainda.datasets.base for preprocessing and reading
-* provide the latest sleep staging algorithm - Attensleep(suitable for one, two or three channels of data)
-* Provide sleep staging demo code based on eegnet and Attensleep
+* Allow users to download sleep staging data via URL or get it directly locally.
+* Add many methods in brainda.datasets for reading and preprocessing data.
+* Add many sleep staging algorithms in brainda.algorithms.deep_learning for single-channel and multi-channel data.
+* Provide sleep staging demo code.
 
 The goal of this fork of MetaBCI is to enables users to use the MetaBCI platform to conveniently develop AI sleep staging tools based on EEG data, improving the accuracy of sleep staging.
 
@@ -84,7 +84,7 @@ The goal of this fork of MetaBCI is to enables users to use the MetaBCI platform
         Older Community‐Dwelling Men: The Osteoporotic Fractures in Men Sleep Study,” J American Geriatrics Society,
         vol. 59, no. 12, pp. 2217–2225, Dec. 2011, doi: 10.1111/j.1532-5415.2011.03731.x.
 
-* New BCI algorithms
+* New sleep staging algorithms
    - Deep Learning
      - AttnSleepNet: cited by
         > E. Eldele et al., “An Attention-Based Deep Learning Approach for Sleep Stage Classification With Single-Channel EEG,” IEEE Trans. Neural Syst. Rehabil. Eng., vol. 29, pp. 809-818, 2021, doi: 10.1109/TNSRE.2021.3076234.
@@ -143,9 +143,6 @@ Distributed under the GNU General Public License v2.0 License. See `LICENSE` for
 ## Contact
 
 Email: xingjian.zhang@mindmatrixes.com
-
-## Paper
-
 
 
 ## Acknowledgements
