@@ -6,26 +6,39 @@
 4.Others：这代码运行会有奇怪的问题，提示OMP: Error #15: Initializing libiomp5md.dll, but found libiomp5md.dll already initialized.
          解决办法：先运行一下别的带有matplotlib的函数例如compare_same_EEG,这个问题就解决了。
 """
-
+import os
+from datetime import datetime
+from sklearn.metrics import confusion_matrix
 import torch
 import numpy as np
 import matplotlib.pyplot as plt
 
 
-def plot_confusion_matrix(readPath:str):
+def plot_confusion_matrix(label_pre: np.ndarray, label_true: np.ndarray):
     """
-    读取并可视化混淆矩阵
+    生成混淆矩阵并且可视化
 
     Parameters:
-    readPath (str): 混淆矩阵文件的路径
+    label_pre (ndarray): 预测标签
+    label_true (ndarray): 真实标签
     """
+    all_labels = np.array(label_true).astype(int)
+    all_pres = np.array(label_pre).astype(int)
+    cm = confusion_matrix(all_labels, all_pres)
+    now = datetime.now()
+    timestamp = now.strftime("%Y%m%d_%H%M%S")  # 格式化时间戳
+    folder_name = "confusion_matrix"
+    if not os.path.exists(folder_name):
+        os.makedirs(folder_name)
+    cm_file_name = f"confusion_matrix_{timestamp}.torch"
+    cm_Save_path = os.path.join(folder_name, cm_file_name)
+    torch.save(cm, cm_Save_path)
+    print(f"Confusion matrix saved as {cm_file_name} in the folder {folder_name}.")
     plt.rcParams['font.family'] = 'DejaVu Sans'
     plt.rcParams['font.weight'] = 'bold'
-    confusion_matrix = torch.load(readPath)
-
-    labels = ['Wake', 'N1', 'N2', 'N3', 'REM']
-
-    class_totals = confusion_matrix.sum(axis=1, keepdims=True)
+    matrix = torch.load(cm_Save_path)
+    labels = []
+    class_totals = matrix.sum(axis=1, keepdims=True)
     num_classes = len(class_totals)
     if num_classes == 5:
         labels = ['Wake', 'N1', 'N2', 'N3', 'REM']
@@ -38,7 +51,7 @@ def plot_confusion_matrix(readPath:str):
     else:
         print("数据分类任务数存在错误")
 
-    percentage_confusion_matrix = (confusion_matrix / class_totals) * 100
+    percentage_confusion_matrix = (matrix / class_totals) * 100
 
     fig, ax = plt.subplots()
     cax = ax.matshow(percentage_confusion_matrix, cmap=plt.cm.Blues)
@@ -63,8 +76,6 @@ def plot_confusion_matrix(readPath:str):
 
     # Display the plot
     plt.show()
+    plt.clf()
 
 
-# Example usage
-readPath = r"D:\python\Pycharm\metabci_0804\demo_sleep\01_SC_FPZ-Cz_confusion_matrix.torch"
-plot_confusion_matrix(readPath)

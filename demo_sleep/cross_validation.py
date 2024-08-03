@@ -8,6 +8,8 @@ from datetime import datetime
 import numpy as np
 import torch
 from sklearn.metrics import confusion_matrix
+
+import demo_sleep
 from metabci.brainda.algorithms.deep_learning import np_to_th
 from metabci.brainda.algorithms.deep_learning.attnsleepnet import AttnSleepNet
 from metabci.brainda.algorithms.utils.model_selection import EnhancedStratifiedKFold
@@ -44,22 +46,14 @@ def cross_train_model(datas, n_splits=5, model_params=(1, 5), model_selection=En
         all_pres.extend(val_preds)
         all_labels.extend(val_labels)
         print(f"Fold {fold + 1} completed.")
-    all_labels = np.array(all_labels).astype(int)
-    all_pres = np.array(all_pres).astype(int)
-    cm = confusion_matrix(all_labels, all_pres)
-    now = datetime.now()
-    timestamp = now.strftime("%Y%m%d_%H%M%S")  # 格式化时间戳
-    folder_name = "confusion_matrix"
-    if not os.path.exists(folder_name):
-        os.makedirs(folder_name)
-    cm_file_name = f"confusion_matrix_{timestamp}.torch"
-    cm_Save_path = os.path.join(folder_name, cm_file_name)
-    torch.save(cm, cm_Save_path)
-    print(f"Confusion matrix saved as {cm_file_name} in the folder {folder_name}.")
+    all_pres = np.asarray(all_pres)
+    all_labels = np.asarray(all_labels)
+    demo_sleep.plot_confusion_matrix(all_pres, all_labels)
+
 
 
 def main():
-    npz_path = r'/data/xingjain.zhang/sleep/1_npzdata/SC/01_SC_FPZ-Cz'  # 原始数据raw_data存储地址
+    npz_path = r'D:\sleep-data\ST\EEG Fpz-Cz'  # 原始数据raw_data存储地址
     sleep = Sleep_telemetry()
     subjects = list(range(30))
     data = sleep.get_processed_data(update_path=npz_path, subjects=subjects,num_classes=2)

@@ -13,3 +13,9 @@ from .cbcic import CBCIC2019001, CBCIC2019004
 from .xu2018_minavep import Xu2018MinaVep
 from .cattan_P300 import Cattan_P300
 from .bids import matchingpennies
+from .sleep_cassette import Sleep_cassette
+from .sleep_telemetry import Sleep_telemetry
+from .shhs import SHHS
+from .apples import Apples
+from .mros import Mros
+from .msp import MSP
