@@ -12,19 +12,34 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 
-def plot_confusion_matrix(readPath:str, labels):
+def plot_confusion_matrix(readPath:str):
     """
     读取并可视化混淆矩阵
 
     Parameters:
     readPath (str): 混淆矩阵文件的路径
-    labels (list of str): 类别标签列表
     """
     plt.rcParams['font.family'] = 'DejaVu Sans'
     plt.rcParams['font.weight'] = 'bold'
     confusion_matrix = torch.load(readPath)
+
+    labels = ['Wake', 'N1', 'N2', 'N3', 'REM']
+
     class_totals = confusion_matrix.sum(axis=1, keepdims=True)
+    num_classes = len(class_totals)
+    if num_classes == 5:
+        labels = ['Wake', 'N1', 'N2', 'N3', 'REM']
+    elif num_classes == 4:
+        labels = ['Wake', 'Light Sleep', 'Deep Sleep',  'REM']
+    elif num_classes == 3:
+        labels = ['Wake', 'NREM', 'REM']
+    elif num_classes == 2:
+        labels = ['Wake', 'Sleep']
+    else:
+        print("数据分类任务数存在错误")
+
     percentage_confusion_matrix = (confusion_matrix / class_totals) * 100
+
     fig, ax = plt.subplots()
     cax = ax.matshow(percentage_confusion_matrix, cmap=plt.cm.Blues)
     plt.colorbar(cax)
@@ -51,6 +66,5 @@ def plot_confusion_matrix(readPath:str, labels):
 
 
 # Example usage
-readPath = r"D:\metabci\demo_sleep\confusion_matrix.torch"
-labels = ['Wake', 'N1', 'N2', 'N3', 'REM']
-plot_confusion_matrix(readPath, labels)
+readPath = r"D:\python\Pycharm\metabci_0804\demo_sleep\01_SC_FPZ-Cz_confusion_matrix.torch"
+plot_confusion_matrix(readPath)
