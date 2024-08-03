@@ -6,6 +6,7 @@ from datetime import datetime, timedelta
 
 from demo_sleep.predict import save_res_pre, save_pre_score
 from demo_sleep.smooth import smooth
+from metabci.brainda.algorithms.deep_learning import TinySleepNet
 from metabci.brainda.datasets.sleep_telemetry import Sleep_telemetry
 from metabci.brainda.utils.performance import Performance, _confusion_matrix
 
@@ -37,6 +38,7 @@ def plotAnalyze(data: np.ndarray) -> None:
         Returns:
         function: A function to format the pie chart labels.
         """
+
         def my_autopct(pct):
             total = sum(values)
             val = int(round(pct * total / 100.0))
@@ -50,18 +52,22 @@ def plotAnalyze(data: np.ndarray) -> None:
     data = data.tolist()
     data_count = [data.count(i) for i in range(num_classes)]
 
-    print(f"Number of epochs in Wake stage: {data_count[0]}")
-    print(f"Number of epochs in N1 stage: {data_count[1]}")
-    print(f"Number of epochs in N2 stage: {data_count[2]}")
-    print(f"Number of epochs in N3 stage: {data_count[3]}")
-    print(f"Number of epochs in REM stage: {data_count[4]}")
-
     # Sizes for each sleep stage
     sizes = data_count
     # Labels for each sleep stage
-    labels = ['Wake', 'N1', 'N2', 'N3', 'REM']
-    # Colors for each sleep stage in the pie chart
-    colors = ['gold', 'yellowgreen', 'lightcoral', 'lightskyblue', 'lightgreen']
+    if num_classes == 5:
+        labels = ['Wake', 'N1', 'N2', 'N3', 'REM']
+        # Colors for each sleep stage in the pie chart
+        colors = ['gold', 'yellowgreen', 'lightcoral', 'lightskyblue', 'lightgreen']
+    if num_classes == 4:
+        labels = ['Wake', 'Light sleep', 'Deep sleep', 'REM']
+        colors = ['gold', 'yellowgreen', 'lightcoral', 'lightskyblue']
+    if num_classes == 3:
+        labels = ['Wake', 'NREM', 'REM']
+        colors = ['gold', 'yellowgreen', 'lightcoral']
+    if num_classes == 2:
+        labels = ['Wake', 'Sleep']
+        colors = ['gold', 'yellowgreen']
 
     # Create the pie chart
     plt.figure(1)
@@ -90,7 +96,15 @@ def plotTime(ax, data: np.ndarray, flag_modi: bool = False, color: str = "blue",
     None
     """
     time_interval = 30  # Time interval represented by each label (in seconds)
-    sleep_stages = {0: 'Wake', 1: 'N1', 2: 'N2', 3: 'N3', 4: 'REM'}  # Mapping numeric values to sleep stages
+    num = len(np.unique(data))
+    if num == 5:
+        sleep_stages = {0: 'Wake', 1: 'N1', 2: 'N2', 3: 'N3', 4: 'REM'}
+    if num == 4:
+        sleep_stages = {0: 'Wake', 1: 'Light sleep', 2: 'Deep sleep', 3: 'REM'}
+    if num == 3:
+        sleep_stages = {0: 'Wake', 1: 'NREM', 2: 'REM'}
+    if num == 2:
+        sleep_stages = {0: 'Wake', 1: 'Sleep'}
 
     if flag_modi:
         # Apply modifications to the data according to specific rules
@@ -200,12 +214,13 @@ def plotTime(ax, data: np.ndarray, flag_modi: bool = False, color: str = "blue",
 
 def main():
     performance = Performance(estimators_list=["Acc", "TPR", "FNR", "TNR"], isdraw=True)
-    datapath = r'D:\sleep-data\ST\EEG Fpz-Cz'  # 数据预处理后的npz_data存储地址
-    parampath = r'D:\metabci\demo_sleep\checkpoints\20240802_100342\params.pt'  # 保存模型参数的地址
+    datapath = r'/data/xingjain.zhang/sleep/1_npzdata/SC/03_SC_Pz-Oz'  # 数据预处理后的npz_data存储地址
+    parampath = r'/home/zhangxj/STY/MetaBCI/demo_sleep/checkpoints/20240802_180132/params.pt'  # 保存模型参数的地址
     sleep_data = Sleep_telemetry()
+    num_classes = 2
     subjects = [1]  # 对于作图只能有一个对象
-    datas = sleep_data.get_processed_data(subjects=subjects, update_path=datapath)
-    y_predict = save_res_pre(datas[1], parampath)
+    datas = sleep_data.get_processed_data(subjects=subjects, update_path=datapath, num_classes=num_classes)
+    y_predict = save_res_pre(datas[1], parampath, train_selection=TinySleepNet(4))
     y_true = datas[0]
     y_predict_sm = smooth(y_predict)
     print(performance.evaluate(y_true, y_predict))  # 打印评估结果
@@ -213,10 +228,10 @@ def main():
     plotAnalyze(y_predict_sm)  # 绘制分期占比饼图
     fig, axs = plt.subplots(3, 1, figsize=(15, 10))
     plotTime(axs[0], y_true, flag_modi=False, color="black", name="PSG true label")
-    plotTime(axs[1], y_predict, flag_modi=False, color="GoldenRod", name="prediction")
-    plotTime(axs[2], y_predict_sm, flag_modi=False, color="GoldenRod", name="smooth prediction")
+    plotTime(axs[0], y_predict, flag_modi=False, color="GoldenRod", name="prediction")
+    plotTime(axs[1], y_predict_sm, flag_modi=False, color="GoldenRod", name="smooth prediction")
     plt.tight_layout()
-    plt.show()  # 绘制分期趋势图
+    plt.show()
 
 
 if __name__ == "__main__":

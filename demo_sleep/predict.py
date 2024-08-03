@@ -3,11 +3,11 @@ from datetime import datetime
 
 import numpy as np
 from metabci.brainda.algorithms.deep_learning import np_to_th
-from metabci.brainda.algorithms.deep_learning.AttnSleep import AttnSleep
+from metabci.brainda.algorithms.deep_learning.attnsleepnet import AttnSleepNet
 from metabci.brainda.datasets.sleep_telemetry import Sleep_telemetry
 
 
-def save_res_pre(X: np.ndarray, parampath: str, train_selection=AttnSleep(1, 5)) -> np.ndarray:
+def save_res_pre(X: np.ndarray, parampath: str, train_selection=AttnSleepNet(1, 5)) -> np.ndarray:
     """
     Predicts sleep stages using a pre-trained AttnSleep model and saves the true and predicted labels.
 
@@ -36,9 +36,9 @@ def save_res_pre(X: np.ndarray, parampath: str, train_selection=AttnSleep(1, 5))
     return y_predict
 
 
-def save_pre_score(X: np.ndarray, parampath: str, train_selection=AttnSleep(1, 5)) -> np.ndarray:
+def save_pre_score(X: np.ndarray, parampath: str, train_selection=AttnSleepNet(1, 5)) -> np.ndarray:
     """
-    Predicts sleep stages using a pre-trained AttnSleep model and saves the true and predicted labels.
+    Predicts sleep stages using a pre-trained model and saves the true and predicted labels.
 
     Parameters:
     X (np.ndarray): The input data.

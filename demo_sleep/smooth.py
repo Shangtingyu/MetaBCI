@@ -11,9 +11,8 @@ def smooth(sleep_stages: np.ndarray) -> np.ndarray:
     Returns:
     list: The smoothed sequence of sleep stages.
     """
-    if not isinstance(sleep_stages, (list, np.ndarray)):
-        raise TypeError("Input must be a list or numpy array")
-
+    if len(np.unique(sleep_stages)) != 5:
+        return sleep_stages
     stages = np.array(sleep_stages)  # Create a copy
 
     # Find the index of the first occurrence of stage S2

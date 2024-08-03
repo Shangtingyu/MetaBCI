@@ -633,7 +633,7 @@ class AttnSleep_3CH(nn.Module):
         return final_output
 
 
-class AttnSleep:
+class AttnSleepNet:
     """
     A class to select and instantiate a specific AttnSleep model based on the number of channels and classes.
 
@@ -646,7 +646,7 @@ class AttnSleep:
 
     Example:
     data : tensor(epoch, channel, data)
-    >>> model = AttnSleep(3, 5)
+    >>> model = AttnSleepNet(3, 5)
     >>> model.fit(data, label)
     Selects the dual-channel model and sets the number of classes to 5.
     """

@@ -1,6 +1,6 @@
 import torch
 import torch.nn as nn
-from metabci.brainda.algorithms.deep_learning.AttnSleep import SkorchNet_sleep
+from metabci.brainda.algorithms.deep_learning.attnsleepnet import SkorchNet_sleep
 
 
 @SkorchNet_sleep

@@ -9,7 +9,7 @@ import numpy as np
 import torch
 from sklearn.metrics import confusion_matrix
 from metabci.brainda.algorithms.deep_learning import np_to_th
-from metabci.brainda.algorithms.deep_learning.AttnSleep import AttnSleep
+from metabci.brainda.algorithms.deep_learning.attnsleepnet import AttnSleepNet
 from metabci.brainda.algorithms.utils.model_selection import EnhancedStratifiedKFold
 from metabci.brainda.datasets.sleep_telemetry import Sleep_telemetry
 
@@ -33,7 +33,7 @@ def cross_train_model(datas, n_splits=5, model_params=(1, 5), model_selection=En
     all_labels = []
 
     for fold, (train_index, _, val_index) in enumerate(kf.split(X_train, y_train)):
-        model = AttnSleep(model_params[0], model_params[1])
+        model = AttnSleepNet(model_params[0], model_params[1])
         X_train_fold = X_train[train_index]
         y_train_fold = y_train[train_index]
         X_val_fold = X_train[val_index]
