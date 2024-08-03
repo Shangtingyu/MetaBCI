@@ -8,7 +8,7 @@ The primary contribution of this branch is enabling MetaBCI to support deep lear
 * Algorithm Section: Offers single-channel and multi-channel algorithm models.
 * Result Section: Supports model training and testing, and displays prediction results.
 
-![img_3.png](.\img.jpg)
+![img_3.png](img.jpg)
 
 All of the above is based on MetaBCI. And we also rewrote and added some basic classes.
 
