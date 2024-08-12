@@ -12,13 +12,22 @@ from metabci.brainda.algorithms import deep_learning
 from metabci.brainda import datasets
 from metabci.brainda.algorithms.utils.model_selection import EnhancedStratifiedKFold
 
+import sys
+
+# 打印 Python 环境路径
+print("Python 环境路径:")
+for path in sys.path:
+    print(path)
+
+import sklearn
+print(sklearn.__version__)
 
 def main():
     path = r'D:\sleep-data\ST'  # 原始数据raw_data存储地址，没有则会自动下载
     dataPath = r'D:\sleep-data\ST\EEG Fpz-Cz'  # 数据预处理后的npz_data存储地址
     os.makedirs(dataPath, exist_ok=True)
-    subjects = None      # None则代表处理所有被试
-    pre_subjects = [11]  # 绘制睡眠趋势图的被试
+    subjects = [0,1]     # None则代表处理所有被试
+    pre_subjects = [0]  # 绘制睡眠趋势图的被试
     select_ch = ["EEG Fpz-Cz"]  # None则代表使用默认通道
     num_classes = 5  # 睡眠分期的分类任务，支持2-5类
 

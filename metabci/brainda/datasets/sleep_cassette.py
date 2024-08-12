@@ -58,12 +58,12 @@ class Sleep_cassette(Sleep_telemetry):
         if subjects is None:
             subjects = list(range(153))
         self.subjects = subjects
-        self.sleep_URL = 'https://physionet.org/files/sleep-edfx/1.0.0/sleep-cassette/'
         self.paradigm = "sleep stage"
         super().__init__(
             dataPath=dataPath,
             subjects=subjects
         )
+        self.sleep_URL = 'https://physionet.org/files/sleep-edfx/1.0.0/sleep-cassette/'
 
     @staticmethod
     def read_data_name(line_number):
