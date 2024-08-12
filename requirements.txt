@@ -1,23 +1,16 @@
-# pytorch
 -f https://download.pytorch.org/whl/torch_stable.html
-
-# Build Packages
 setuptools
-wheel~=0.41.2
+wheel~=0.44.0
 twine
-
-# Lint & Coverage
 flake8
 mypy
 coverage
-
-# 3rd party packages
 mat73~=0.63
 tqdm>=4.32.0
 torch==2.3.1
 numpy==1.26.4
-mne>=0.21.1
-pandas~=2.2.2
+mne==1.7.1
+pandas
 py7zr~=0.21.0
 joblib~=1.4.2
 autograd~=1.6.2
@@ -27,24 +20,17 @@ requests~=2.32.3
 requests[socks]
 pytest~=8.2.2
 h5py~=3.11.0
-scikit-learn==0.18
 sphinxcontrib-napoleon
 skorch==1.0.0
 pooch~=1.8.2
 pylsl~=1.16.2
-# pip install psychopy failed on mac[py37, py38], due to wxpython build problem
-wxPython==4.1.1; sys_platform == 'darwin' and python_version <= '3.8'
 pyglet==1.5.27; sys_platform == 'darwin' and python_version <= '3.8'
-mne-bids
-
-Sphinx~=7.3.7
+mne_bids==0.15.0
 sphinxcontrib-napoleon
 sphinxcontrib-apidoc
 sphinx-rtd-theme
 m2r
 m2r2
-
-lazy_loader~=0.4
 matplotlib~=3.9.0
 decorator~=4.4.2
 packaging~=24.1
@@ -53,21 +39,18 @@ pbr~=6.0.0
 six~=1.16.0
 importlib_metadata~=8.0.0
 cffi~=1.16.0
-typing_extensions~=4.12.2
+typing_extensions==4.12.0
 future~=1.0.0
 pillow~=10.3.0
 pip~=23.2.1
 cryptography~=42.0.8
 docutils~=0.20.1
-Jinja2~=3.1.4
 tables~=3.9.2
 filelock~=3.15.4
 tomli~=2.0.1
 pytz~=2024.1
 rich~=13.7.1
-Pygments~=2.18.0
 colorama~=0.4.6
-Babel~=2.15.0
 mdurl~=0.1.2
 platformdirs~=4.2.2
 multivolumefile~=0.2.3
@@ -75,7 +58,6 @@ texttable~=1.7.0
 inflate64~=1.0.0
 pyppmd~=1.1.0
 pyzstd~=0.16.0
-Brotli~=1.1.0
 threadpoolctl~=3.5.0
 mpmath~=1.3.0
 sympy~=1.12.1
@@ -86,14 +68,11 @@ psutil~=6.0.0
 urllib3~=2.2.2
 fsspec~=2024.6.1
 keyring~=25.2.1
-readme_renderer~=43.0
 rfc3986~=2.0.0
 pkginfo~=1.10.0
 pyflakes~=3.2.0
 pycodestyle~=2.12.0
 ujson~=5.10.0
-MarkupSafe~=2.1.5
-mistune~=0.8.4
 xlrd~=2.0.1
 openpyxl~=3.1.5
 numexpr~=2.10.1
@@ -109,12 +88,10 @@ certifi~=2024.6.2
 pockets~=0.9.1
 idna~=3.7
 networkx~=3.3
-PyYAML~=6.0.1
 contourpy~=1.2.1
 fonttools~=4.53.0
 pyparsing~=3.1.2
 cycler~=0.12.1
-wxPython~=4.2.1
 kiwisolver~=1.4.5
 zipp~=3.19.2
 pyserial~=3.5
