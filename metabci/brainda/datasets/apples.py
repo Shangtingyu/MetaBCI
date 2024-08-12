@@ -74,6 +74,7 @@ class Apples(SHHS):
                 dataPath (str): Target storage address for raw data edf
                 subjects (list): List of subject numbers,defaults to all subjects
         """
+        super().__init__(dataPath=dataPath, subjects=subjects)
         if subjects is None:
             subjects = list(range(50))
         self.dataPath = dataPath
@@ -85,7 +86,7 @@ class Apples(SHHS):
         self.subjects = subjects
         self.strate = 100
         self.paradigm = "sleep stage"
-        super().__init__(dataPath=dataPath, subjects=subjects)
+
 
     @staticmethod
     def readAnnotFiles(path):

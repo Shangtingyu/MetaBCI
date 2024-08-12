@@ -71,6 +71,7 @@ class Mros(SHHS):
                 dataPath (str): Target storage address for raw data edf
                 subjects (list): List of subject numbers,defaults to all subjects
         """
+        super().__init__(dataPath=dataPath, subjects=subjects)
         self.dataset_code = "mros"
         self.channels = self._CHANNELS,
         if subjects is None:
@@ -78,7 +79,6 @@ class Mros(SHHS):
         self.subjects = subjects
         self.strate = 100
         self.paradigm = "sleep stage"
-        super().__init__(dataPath=dataPath, subjects=subjects)
 
 
     def save_processed_data(self,

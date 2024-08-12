@@ -534,7 +534,7 @@ class Sleep_telemetry(BaseDataset):
 
 
 if __name__ == "__main__":
-    path = r'D:\sleep-data\ST\raw'         # 原始数据raw_data存储地址，没有则会自动下载
+    path = r'D:\sleep-data\ST'         # 原始数据raw_data存储地址，没有则会自动下载
     dataPath = r'D:\sleep-data\ST\npz'     # 数据预处理后的npz_data存储地址
     os.makedirs(dataPath, exist_ok=True)
 

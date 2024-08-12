@@ -72,12 +72,6 @@ class SHHS(BaseDataset):
                 dataPath (str): Target storage address for raw data edf
                 subjects (list): List of subject numbers,defaults to all subjects
         """
-        self.strate = 100
-        self.dataPath = dataPath
-        if subjects is None:
-            subjects = list(range(50))
-        self.subjects = subjects
-        self.paradigm = "sleep stage"
         super().__init__(
             dataset_code="shhs",
             subjects=subjects,
@@ -86,6 +80,13 @@ class SHHS(BaseDataset):
             srate=100,
             paradigm='shhs'
         )
+
+        self.strate = 100
+        self.dataPath = dataPath
+        if subjects is None:
+            subjects = list(range(50))
+        self.subjects = subjects
+        self.paradigm = "sleep stage"
 
     def data_path(
             self,
@@ -411,11 +412,11 @@ class SHHS(BaseDataset):
 
 if __name__ == "__main__":
     path = r'D:\sleep-data\shhs\edfs'             # 原始数据raw_data存储地址
-    dataPath = r'D:\sleep-data\shhs\EEG-EOG(L)'         # 数据预处理后的npz_data存储地址
+    dataPath = r'D:\sleep-data\shhs\EOG(R)'         # 数据预处理后的npz_data存储地址
     os.makedirs(dataPath, exist_ok=True)
 
-    subjects = None                        # None则代表处理所有被试
-    select_ch = ["EEG", "EOG(L)"]                # None则代表使用单通道"EEG"
+    subjects = [10,11,12]                        # None则代表处理所有被试
+    select_ch = ["EOG(R)"]                # None则代表使用单通道"EEG"
     num_classes = 5                              # 睡眠分期的分类任务，支持2-5类
 
     sleep = SHHS(dataPath=path)
