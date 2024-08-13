@@ -459,7 +459,7 @@ class SkorchNet_sleep:
             callbacks=[
                 ("train_acc", EpochScoring("accuracy", name="train_acc", on_train=True, lower_is_better=False)),
                 ("lr_scheduler", LRScheduler(policy="MultiStepLR", milestones=[20], gamma=0.2)),
-                ("estoper", EarlyStopping(monitor="valid_acc", patience=1, lower_is_better=False)),
+                ("estoper", EarlyStopping(monitor="valid_acc", patience=20, lower_is_better=False)),
                 ("best_epoch", self.best_epoch_callback),
             ],
             verbose=True,

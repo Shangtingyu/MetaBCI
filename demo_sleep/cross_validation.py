@@ -6,6 +6,8 @@
 import os
 
 import numpy as np
+from sklearn.metrics import f1_score
+
 import demo_sleep
 from demo_sleep import save_res_pre
 from metabci.brainda.algorithms.deep_learning import np_to_th
@@ -55,19 +57,21 @@ def cross_train_model(datas, n_splits=5, model_params=(1, 5), model_selection=En
 
 
 def main():
-    npz_path = r'/data/xingjain.zhang/sleep/1_npzdata/ST'  # npz数据存储地址
+    npz_path = r'/data/xingjain.zhang/sleep/1_npzdata/SC'  # npz数据存储地址
     sleep = Sleep_telemetry()
     subjects = list(range(30))
-    data = sleep.get_processed_data(update_path=npz_path, subjects=subjects, num_classes=2)
-    model_params = (1, 2)  # 模型的通道和分类门数
+    num_classes = 5
+    data = sleep.get_processed_data(update_path=npz_path, subjects=subjects, num_classes=num_classes)
+    model_params = (1, num_classes)  # 模型的通道和分类门数
     path = cross_train_model(data, model_params=model_params)
-    print(path)
     test_subjects = list(range(30, 35))
-    test_datas = sleep.get_processed_data(update_path=npz_path, subjects=test_subjects, num_classes=2)
+    test_datas = sleep.get_processed_data(update_path=npz_path, subjects=test_subjects, num_classes=num_classes)
     test_X, test_y = test_datas[1], test_datas[0]
-    pre_y = save_res_pre(test_X, path, AttnSleepNet(1, 2))
+    pre_y = save_res_pre(test_X, path, AttnSleepNet(1, num_classes))
     per = Performance(estimators_list=["Acc"])
     print(per.evaluate(pre_y, test_y))
+    f1_scores = f1_score(pre_y, test_y, average=None)
+    print(f'F1 Scores for each class: {f1_scores}')
 
 
 if __name__ == '__main__':
