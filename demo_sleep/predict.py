@@ -14,7 +14,7 @@ def save_res_pre(X: np.ndarray, parampath: str, train_selection=AttnSleepNet(1, 
     Parameters:
     X (np.ndarray): The input data.
     parampath (str): The file path to the pre-trained model parameters.
-    train_selection: The function to initialize the AttnSleep model.
+    train_selection: The function to initialize the AttnSleep model,like AttnSleepNet(1, 5).
 
     Returns:
     np.ndarray: The predicted labels.

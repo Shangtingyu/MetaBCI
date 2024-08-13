@@ -220,7 +220,9 @@ def _narrow_normal_weight_zero_bias(model):
 
 class NeuralNetClassifierNoLog(NeuralNetClassifier):
     def __init__(self, *args, **kwargs):
+        self.model_name = None
         self.custom_valid_data = None
+        self.str = None
         super().__init__(*args, **kwargs)
 
     def get_loss(self, y_pred, y_true, *args, **kwargs):
@@ -254,6 +256,7 @@ class NeuralNetClassifierNoLog(NeuralNetClassifier):
         """
         self.custom_valid_data = test_data
         file_name = f"checkpoints/{datetime.now().strftime('%Y%m%d_%H%M%S')}"
+        self.name = file_name
         checkpoint_callback = Checkpoint(dirname=file_name)
         print(f'Model params path: {file_name}')
 

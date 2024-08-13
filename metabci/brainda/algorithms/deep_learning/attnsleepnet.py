@@ -434,48 +434,19 @@ class BestEpochCallback(Callback):
     def on_train_end(self, net, **kwargs):
         if self.best_epoch is not None:
             print(f"Best validation accuracy achieved at epoch {self.best_epoch}: {self.best_valid_acc}")
+            net.best_epoch = self.best_epoch
+            net.best_valid_acc = self.best_valid_acc
 
-
-# class NeuralNetClass(NeuralNetClassifier):
-#     def __init__(self, *args, **kwargs):
-#         super().__init__(*args, **kwargs)
-#
-#     def fit(self, X, y, valid_data=None, **fit_params):
-#         """
-#         Fit the model to the training data and optionally validate using provided validation data.
-#         """
-#         self.custom_valid_data = valid_data
-#         # data_size = y.shape[0]
-#         # optimizer__weight_decay = 1e-4
-#         # base_lr = 1e-4
-#         # lr = self.adjust_lr(data_size, base_lr)
-#         # optimizer__weight_decay = self.adjust_weight_decay(data_size, optimizer__weight_decay)
-#         # self.initialize()
-#         # for param_group in self.optimizer_.param_groups:
-#         #     param_group['lr'] = lr
-#         net = super(NeuralNetClass, self).fit(X, y, **fit_params)
-#         return net
-#
-#     # @staticmethod
-#     # def adjust_lr(data_size, base_lr):
-#     #     scaling_factor = (data_size / 3000) ** 0.5
-#     #     lr = base_lr / scaling_factor
-#     #     return lr
-#     #
-#     # @staticmethod
-#     # def adjust_weight_decay(data_size, weight_decay):
-#     #     scaling_factor = (data_size / 3000) ** 0.5
-#     #     weight_decay = weight_decay / scaling_factor
-#     #     return weight_decay
 
 
 class SkorchNet_sleep:
     def __init__(self, module):
         self.module = module
+        self.best_epoch_callback = BestEpochCallback()
 
     def __call__(self, *args, **kwargs):
         model = self.module(*args, **kwargs)
-        net = NeuralNetClassifierNoLog(
+        self.net = NeuralNetClassifierNoLog(
             module=model.float(),
             criterion=nn.CrossEntropyLoss(),
             optimizer=optim.AdamW,
@@ -488,12 +459,13 @@ class SkorchNet_sleep:
             callbacks=[
                 ("train_acc", EpochScoring("accuracy", name="train_acc", on_train=True, lower_is_better=False)),
                 ("lr_scheduler", LRScheduler(policy="MultiStepLR", milestones=[20], gamma=0.2)),
-                ("estoper", EarlyStopping(monitor="valid_acc", patience=30, lower_is_better=False)),
-                ("best_epoch", BestEpochCallback()),
+                ("estoper", EarlyStopping(monitor="valid_acc", patience=1, lower_is_better=False)),
+                ("best_epoch", self.best_epoch_callback),
             ],
             verbose=True,
         )
-        return net
+        return self.net
+
 
 
 @SkorchNet_sleep
