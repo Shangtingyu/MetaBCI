@@ -75,7 +75,6 @@ class MSP(Apples):
                 dataPath (str): Target storage address for raw data edf
                 subjects (list): List of subject numbers,defaults to all subjects
         """
-        super().__init__(dataPath=dataPath, subjects=subjects)
         self.dataPath = dataPath
         self.dataset_code = "msp"
         self.events = self._EVENTS
@@ -85,7 +84,7 @@ class MSP(Apples):
         self.subjects = subjects
         self.strate = 100
         self.paradigm = "sleep stage"
-
+        super().__init__(dataPath=dataPath, subjects=subjects)
 
     def save_processed_data(self,
                             subjects: List[Union[int, str]] = None,

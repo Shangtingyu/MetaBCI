@@ -6,7 +6,7 @@ from datetime import datetime, timedelta
 
 from demo_sleep.predict import save_res_pre, save_pre_score
 from demo_sleep.smooth import smooth
-from metabci.brainda.algorithms.deep_learning import TinySleepNet
+from metabci.brainda.algorithms.deep_learning import TinySleepNet, AttnSleepNet
 from metabci.brainda.datasets.sleep_telemetry import Sleep_telemetry
 from metabci.brainda.utils.performance import Performance, _confusion_matrix
 
@@ -214,13 +214,13 @@ def plotTime(ax, data: np.ndarray, flag_modi: bool = False, color: str = "blue",
 
 def main():
     performance = Performance(estimators_list=["Acc", "TPR", "FNR", "TNR"], isdraw=True)
-    datapath = r'/data/xingjain.zhang/sleep/1_npzdata/SC/03_SC_Pz-Oz'  # 数据预处理后的npz_data存储地址
-    parampath = r'/home/zhangxj/STY/MetaBCI/demo_sleep/checkpoints/20240802_180132/params.pt'  # 保存模型参数的地址
+    datapath = r'D:\sleep-data\ST\EEG Fpz-Cz'  # 数据预处理后的npz_data存储地址
+    parampath = r'D:\metabci\demo_sleep\checkpoints\ST-EEG-Fpz-Cz\params.pt'  # 保存模型参数的地址
     sleep_data = Sleep_telemetry()
-    num_classes = 2
-    subjects = [1]  # 对于作图只能有一个对象
+    num_classes = 5
+    subjects = [0]  # 对于作图只能有一个对象
     datas = sleep_data.get_processed_data(subjects=subjects, update_path=datapath, num_classes=num_classes)
-    y_predict = save_res_pre(datas[1], parampath, train_selection=TinySleepNet(4))
+    y_predict = save_res_pre(datas[1], parampath, train_selection=AttnSleepNet(1, num_classes))
     y_true = datas[0]
     y_predict_sm = smooth(y_predict)
     print(performance.evaluate(y_true, y_predict))  # 打印评估结果

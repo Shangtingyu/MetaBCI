@@ -12,15 +12,6 @@ from metabci.brainda.algorithms import deep_learning
 from metabci.brainda import datasets
 from metabci.brainda.algorithms.utils.model_selection import EnhancedStratifiedKFold
 
-import sys
-
-# 打印 Python 环境路径
-print("Python 环境路径:")
-for path in sys.path:
-    print(path)
-
-import sklearn
-print(sklearn.__version__)
 
 def main():
     path = r'D:\sleep-data\ST'  # 原始数据raw_data存储地址，没有则会自动下载

@@ -3,12 +3,8 @@
 # Authors: Shangtingyu
 # Date: 2024/7/25
 # License: MIT License
-import os
-from datetime import datetime
-import numpy as np
-import torch
-from sklearn.metrics import confusion_matrix
 
+import numpy as np
 import demo_sleep
 from metabci.brainda.algorithms.deep_learning import np_to_th
 from metabci.brainda.algorithms.deep_learning.attnsleepnet import AttnSleepNet
@@ -51,9 +47,8 @@ def cross_train_model(datas, n_splits=5, model_params=(1, 5), model_selection=En
     demo_sleep.plot_confusion_matrix(all_pres, all_labels)
 
 
-
 def main():
-    npz_path = r'D:\sleep-data\ST\EEG Fpz-Cz'  # 原始数据raw_data存储地址
+    npz_path = r'D:\sleep-data\ST\EEG Fpz-Cz'  # npz数据存储地址
     sleep = Sleep_telemetry()
     subjects = list(range(30))
     data = sleep.get_processed_data(update_path=npz_path, subjects=subjects,num_classes=2)
