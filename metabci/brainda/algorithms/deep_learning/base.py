@@ -220,10 +220,11 @@ def _narrow_normal_weight_zero_bias(model):
 
 class NeuralNetClassifierNoLog(NeuralNetClassifier):
     def __init__(self, *args, **kwargs):
-        self.model_name = None
+
         self.custom_valid_data = None
         self.str = None
         super().__init__(*args, **kwargs)
+        self.name = None
 
     def get_loss(self, y_pred, y_true, *args, **kwargs):
         return super(NeuralNetClassifier, self).get_loss(

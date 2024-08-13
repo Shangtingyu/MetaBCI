@@ -442,7 +442,7 @@ class BestEpochCallback(Callback):
 class SkorchNet_sleep:
     def __init__(self, module):
         self.module = module
-        self.best_epoch_callback = BestEpochCallback()
+
 
     def __call__(self, *args, **kwargs):
         model = self.module(*args, **kwargs)
@@ -460,7 +460,7 @@ class SkorchNet_sleep:
                 ("train_acc", EpochScoring("accuracy", name="train_acc", on_train=True, lower_is_better=False)),
                 ("lr_scheduler", LRScheduler(policy="MultiStepLR", milestones=[20], gamma=0.2)),
                 ("estoper", EarlyStopping(monitor="valid_acc", patience=20, lower_is_better=False)),
-                ("best_epoch", self.best_epoch_callback),
+                ("best_epoch", BestEpochCallback()),
             ],
             verbose=True,
         )

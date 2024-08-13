@@ -44,20 +44,19 @@ def cross_train_model(datas, n_splits=5, model_params=(1, 5), model_selection=En
 
         best_acc = getattr(model, 'best_valid_acc', None)
         best_accs.append(best_acc)
-        names.append(model.model_name)
+        names.append(model.name)
         print(f"Fold {fold + 1} completed.")
-    # 找到最大数字
-    max_number = max(best_accs)
-    # 找到最大数字的索引
-    max_index = best_accs.index(max_number)
 
+    max_number = max(best_accs)
+    max_index = best_accs.index(max_number)
+    name = names[max_index]
     script_dir = os.path.dirname(os.path.abspath(__file__))
-    path = os.path.join(script_dir, names[max_index], 'params.pt')
+    path = os.path.join(script_dir, name, 'params.pt')
     return path
 
 
 def main():
-    npz_path = r'/data/xingjain.zhang/sleep/1_npzdata/SC'  # npz数据存储地址
+    npz_path = r'/data/xingjain.zhang/sleep/1_npzdata/ST'  # npz数据存储地址
     sleep = Sleep_telemetry()
     subjects = list(range(30))
     num_classes = 5
