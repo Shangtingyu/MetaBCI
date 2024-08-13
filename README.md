@@ -8,7 +8,7 @@ The primary contribution of this branch is enabling MetaBCI to support deep lear
 * Algorithm Section: Offers single-channel and multi-channel algorithm models.
 * Result Section: Supports model training and testing, and displays prediction results.
 
-![img_3.png](.\img.jpg)
+![img_3.png](img.jpg)
 
 All of the above is based on MetaBCI. And we also rewrote and added some basic classes.
 
@@ -68,18 +68,18 @@ The goal of this fork of MetaBCI is to enables users to use the MetaBCI platform
         > B. Kemp, A. H. Zwinderman, B. Tuk, H. A. C. Kamphuisen, and J. J. L. Oberye, “Analysis of a sleep-dependent
         neuronal feedback loop: the slow-wave microcontinuity of the EEG,” IEEE Trans. Biomed. Eng.,
         vol. 47, no. 9, pp. 1185–1194, Sep. 2000, doi: 10.1109/10.867928.
-     - sleep_shhs: cited by 
+     - SHHS: cited by 
         > S. Quan et al., “The Sleep Heart Health Study: design, rationale, and methods,” Sleep,
         vol. 20, no. 12, pp. 1077–1085, Dec. 1997, doi: 10.1093/sleep/20.12.1077.
-     - sleep_apples: cited by
+     - Apples: cited by
         > S. F. Quan et al., “The Association between Obstructive Sleep Apnea and Neurocognitive Performance—The Apnea
         Positive Pressure Long-term Efficacy Study (APPLES),” Sleep, vol. 34, no. 3, pp. 303–314, Mar. 2011,
         doi: 10.1093/sleep/34.3.303.
-     - sleep_msp: cited by
+     - MSP: cited by
         > DiPietro JA, Raghunathan RS, Wu HT, Bai J, Watson H, Sgambati FP, Henderson JL, Pien GW. Fetal heart rate
         during maternal sleep. Dev Psychobiol. 2021 Jul;63(5):945-959. doi: 10.1002/dev.22118. Epub 2021 Mar 25.
         PMID: 33764539.
-     - sleep_msro: cited by 
+     - Msro: cited by 
         > T. Blackwell et al., “Associations Between Sleep Architecture and Sleep‐Disordered Breathing and Cognition in
         Older Community‐Dwelling Men: The Osteoporotic Fractures in Men Sleep Study,” J American Geriatrics Society,
         vol. 59, no. 12, pp. 2217–2225, Dec. 2011, doi: 10.1111/j.1532-5415.2011.03731.x.

@@ -228,8 +228,8 @@ def main():
     plotAnalyze(y_predict_sm)  # 绘制分期占比饼图
     fig, axs = plt.subplots(3, 1, figsize=(15, 10))
     plotTime(axs[0], y_true, flag_modi=False, color="black", name="PSG true label")
-    plotTime(axs[0], y_predict, flag_modi=False, color="GoldenRod", name="prediction")
-    plotTime(axs[1], y_predict_sm, flag_modi=False, color="GoldenRod", name="smooth prediction")
+    plotTime(axs[1], y_predict, flag_modi=False, color="GoldenRod", name="prediction")
+    plotTime(axs[2], y_predict_sm, flag_modi=False, color="GoldenRod", name="smooth prediction")
     plt.tight_layout()
     plt.show()
 
