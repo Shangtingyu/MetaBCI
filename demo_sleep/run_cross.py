@@ -5,15 +5,13 @@
 # License: MIT License
 import os
 
-import numpy as np
 from sklearn.metrics import f1_score
 
-import demo_sleep
 from demo_sleep import save_res_pre
-from metabci.brainda.algorithms.deep_learning import np_to_th
+from metabci.brainda import datasets
+from metabci.brainda.algorithms.deep_learning import np_to_th, TinySleepNet, DeepSleepNet
 from metabci.brainda.algorithms.deep_learning.attnsleepnet import AttnSleepNet
 from metabci.brainda.algorithms.utils.model_selection import EnhancedStratifiedKFold
-from metabci.brainda.datasets.sleep_telemetry import Sleep_telemetry
 from metabci.brainda.utils.performance import Performance
 
 
@@ -40,7 +38,7 @@ def cross_train_model(datas, n_splits=5, model_params=(1, 5), model_selection=En
         y_train_fold = y_train[train_index]
         X_val_fold = X_train[val_index]
         y_val_fold = y_train[val_index]
-        model.fit(X_train_fold, y_train_fold, test_data=(X_val_fold, y_val_fold))
+        model.fit(X_train_fold, y_train_fold, valid_data=(X_val_fold, y_val_fold))
 
         best_acc = getattr(model, 'best_valid_acc', None)
         best_accs.append(best_acc)
@@ -56,20 +54,30 @@ def cross_train_model(datas, n_splits=5, model_params=(1, 5), model_selection=En
 
 
 def main():
-    npz_path = r'/data/xingjain.zhang/sleep/1_npzdata/ST'  # npz数据存储地址
-    sleep = Sleep_telemetry()
-    subjects = list(range(30))
+    path = r'D:\sleep-data\ST'  # 原始数据raw_data存储地址，没有则会自动下载
+    dataPath = r'D:\sleep-data\ST\EEG Fpz-Cz'  # 数据预处理后的npz_data存储地址
+    os.makedirs(dataPath, exist_ok=True)
+    subjects = list(range(30))  # None则代表处理所有被试
+    pre_subjects = [0]  # 绘制睡眠趋势图的被试
+    select_ch = ["EEG Fpz-Cz"]  # None则代表使用默认通道
+    # 睡眠分期的分类任务，支持2-5类
     num_classes = 5
-    data = sleep.get_processed_data(update_path=npz_path, subjects=subjects, num_classes=num_classes)
-    model_params = (1, num_classes)  # 模型的通道和分类门数
-    path = cross_train_model(data, model_params=model_params)
+    num_channels = 1
+    # 数据预处理与加载
+    # 支持数据集:Sleep_telemetry可以替换为Sleep_cassette、SHHS、Mros、MSP、Apples
+    sleep = datasets.Sleep_telemetry(dataPath=path)
+    sleep.save_processed_data(update_path=dataPath, subjects=subjects, select_ch=select_ch)
+    data = sleep.get_processed_data(update_path=dataPath, subjects=subjects, num_classes=num_classes)
+    model_params = (num_channels, num_classes)  # 模型的通道和分类门数
+    model_path = cross_train_model(data, model_params=model_params)
     test_subjects = list(range(30, 35))
-    test_datas = sleep.get_processed_data(update_path=npz_path, subjects=test_subjects, num_classes=num_classes)
+    test_datas = sleep.get_processed_data(update_path=dataPath, subjects=test_subjects, num_classes=num_classes)
     test_X, test_y = test_datas[1], test_datas[0]
-    pre_y = save_res_pre(test_X, path, AttnSleepNet(1, num_classes))
+    pre_y = save_res_pre(test_X, model_path, AttnSleepNet(num_channels, num_classes))
     per = Performance(estimators_list=["Acc"])
     print(per.evaluate(pre_y, test_y))
     f1_scores = f1_score(pre_y, test_y, average=None)
+    f1_scores = [round(num, 2) for num in f1_scores]
     print(f'F1 Scores for each class: {f1_scores}')
 
 

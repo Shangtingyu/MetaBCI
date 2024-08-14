@@ -41,7 +41,7 @@ def main():
     # model = deep_learning.TinySleepNet(num_classes=num_classes)
     # model = deep_learning.eegnet(len(select_ch),3000,num_classes=num_classes)
     model = deep_learning.AttnSleepNet(len(select_ch), num_classes=num_classes)
-    model.fit(X_train, y_train, test_data=(X_test, y_test))
+    model.fit(X_train, y_train, valid_data=(X_test, y_test))
 
     # 模型预测与结果展示
     y_predict = model.predict(X_test)

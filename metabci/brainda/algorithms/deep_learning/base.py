@@ -8,17 +8,14 @@ from collections import OrderedDict
 from datetime import datetime
 
 import numpy as np
-import pandas as pd
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
 import torch.optim as optim
-from sklearn.metrics import accuracy_score
-from sklearn.model_selection import KFold
-
 from skorch.classifier import NeuralNetClassifier
 from skorch.dataset import ValidSplit
 from skorch.callbacks import LRScheduler, EpochScoring, Checkpoint, EarlyStopping
+from metabci.brainda.algorithms.utils.model_selection import get_split_datasets
 
 
 def compute_out_size(
@@ -231,7 +228,7 @@ class NeuralNetClassifierNoLog(NeuralNetClassifier):
             y_pred, y_true, *args, **kwargs
         )
 
-    def fit(self, X, y, test_data=None, **fit_params):
+    def fit(self, X, y, valid_data=None, **fit_params):
         """
             Fit the model to the training data and optionally validate using provided validation data.
 
@@ -243,7 +240,7 @@ class NeuralNetClassifierNoLog(NeuralNetClassifier):
             y : array-like, shape (n_samples,)
                 Target values.
 
-            test_data : tuple, optional (default=None)
+            valid_data : tuple, optional (default=None)
                 A tuple (X_valid, y_valid) representing the validation data.
                 If provided, it will be used for validation during training.
 
@@ -255,7 +252,7 @@ class NeuralNetClassifierNoLog(NeuralNetClassifier):
             self : object
             Returns the instance itself.
         """
-        self.custom_valid_data = test_data
+        self.custom_valid_data = valid_data
         file_name = f"checkpoints/{datetime.now().strftime('%Y%m%d_%H%M%S')}"
         self.name = file_name
         checkpoint_callback = Checkpoint(dirname=file_name)
@@ -275,22 +272,7 @@ class NeuralNetClassifierNoLog(NeuralNetClassifier):
         return net
 
     def get_split_datasets(self, X, y=None, **fit_params):
-        dataset = self.get_dataset(X, y)
-        if not self.train_split:
-            return dataset, None
-
-        if self.custom_valid_data is not None:
-            X_train, y_train = X, y
-            X_valid, y_valid = self.custom_valid_data
-        else:
-            if y is None:
-                return self.train_split(dataset, **fit_params)
-            return self.train_split(dataset, y, **fit_params)
-
-        train_dataset = self.get_dataset(X_train, y_train)
-        valid_dataset = self.get_dataset(X_valid, y_valid)
-
-        return train_dataset, valid_dataset
+        return get_split_datasets(self, X, y, **fit_params)
 
 
 class SkorchNet:
@@ -300,7 +282,7 @@ class SkorchNet:
     def __call__(self, *args, **kwargs):
         model = self.module(*args, **kwargs)
         net = NeuralNetClassifierNoLog(
-            model.float(),
+            model.double(),
             criterion=nn.CrossEntropyLoss,
             optimizer=optim.Adam,
             optimizer__weight_decay=0,

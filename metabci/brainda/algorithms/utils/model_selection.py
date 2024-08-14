@@ -20,6 +20,8 @@ from sklearn.model_selection import (
     LeaveOneGroupOut, BaseCrossValidator,
 )
 import torch
+from skorch import NeuralNetClassifier
+from skorch.callbacks import Checkpoint
 
 
 def set_random_seeds(seed: int):
@@ -933,3 +935,22 @@ def match_char_kfold_indices(k: int, meta: DataFrame, indices):
     val_ix = np.concatenate(val_ix)
     test_ix = np.concatenate(test_ix)
     return train_ix, val_ix, test_ix
+
+
+def get_split_datasets(model, X, y=None, **fit_params):
+    dataset = model.get_dataset(X, y)
+    if not model.train_split:
+        return dataset, None
+
+    if model.custom_valid_data is not None:
+        X_train, y_train = X, y
+        X_valid, y_valid = model.custom_valid_data
+    else:
+        if y is None:
+            return model.train_split(dataset, **fit_params)
+        return model.train_split(dataset, y, **fit_params)
+
+    train_dataset = model.get_dataset(X_train, y_train)
+    valid_dataset = model.get_dataset(X_valid, y_valid)
+
+    return train_dataset, valid_dataset
