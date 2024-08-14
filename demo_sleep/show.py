@@ -41,6 +41,8 @@ def plotAnalyze(data: np.ndarray) -> None:
 
         def my_autopct(pct):
             total = sum(values)
+            if np.isnan(pct):
+                pct = 0
             val = int(round(pct * total / 100.0))
             # Display both the percentage and the actual value
             return '{p:.2f}%  ({v:d})'.format(p=pct, v=val)
@@ -59,15 +61,19 @@ def plotAnalyze(data: np.ndarray) -> None:
         labels = ['Wake', 'N1', 'N2', 'N3', 'REM']
         # Colors for each sleep stage in the pie chart
         colors = ['gold', 'yellowgreen', 'lightcoral', 'lightskyblue', 'lightgreen']
-    if num_classes == 4:
+    elif num_classes == 4:
         labels = ['Wake', 'Light sleep', 'Deep sleep', 'REM']
         colors = ['gold', 'yellowgreen', 'lightcoral', 'lightskyblue']
-    if num_classes == 3:
+    elif num_classes == 3:
         labels = ['Wake', 'NREM', 'REM']
         colors = ['gold', 'yellowgreen', 'lightcoral']
-    if num_classes == 2:
+    elif num_classes == 2:
         labels = ['Wake', 'Sleep']
         colors = ['gold', 'yellowgreen']
+    else:
+        labels = ['Wake']
+        colors = ['gold']
+
 
     # Create the pie chart
     plt.figure(1)

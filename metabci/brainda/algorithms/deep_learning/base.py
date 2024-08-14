@@ -3,7 +3,7 @@
 # Authors: Swolf <swolfforever@gmail.com>
 # Date: 2021/1/23
 # License: MIT License
-import time
+
 from collections import OrderedDict
 from datetime import datetime
 
@@ -16,7 +16,7 @@ from skorch.classifier import NeuralNetClassifier
 from skorch.dataset import ValidSplit
 from skorch.callbacks import LRScheduler, EpochScoring, Checkpoint, EarlyStopping
 from metabci.brainda.algorithms.utils.model_selection import get_split_datasets
-
+from metabci.brainda.algorithms import deep_learning
 
 def compute_out_size(
         input_size: int,
@@ -305,7 +305,7 @@ class SkorchNet:
                 ),
                 ("lr_scheduler", LRScheduler("CosineAnnealingLR", T_max=300 - 1)),
                 ("estoper", EarlyStopping(monitor="valid_acc", patience=50, lower_is_better=False)),
-
+                ("best_epoch", deep_learning.BestEpochCallback()),
             ],
             verbose=True,
         )
