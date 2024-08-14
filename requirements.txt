@@ -31,7 +31,7 @@ sphinxcontrib-apidoc
 sphinx-rtd-theme
 m2r
 m2r2
-matplotlib~=3.9.0
+matplotlib~=3.7.0
 decorator~=4.4.2
 packaging~=24.1
 nh3~=0.2.17
