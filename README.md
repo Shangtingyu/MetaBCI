@@ -2,7 +2,7 @@
 
 ## Welcome! 
 MetaBCI is an open source, non-invasive brain computer interface platform.The MetaBCI project is led by Prof. Minpeng Xu of Tianjin University, China. This fork of MetaBCI was developed by Hangzhou Mind Matrixes Technology Co. 
-The primary contribution of this branch is enabling MetaBCI to support deep learning-based sleep staging scenarios. This allows new users to quickly and easily develop AI-driven sleep staging models using single-channel or multi-channel data on the MetaBCI platform. Specifically, the sleep staging task is divided into three sections: data, algorithm, and result.
+The primary contribution of this branch is enabling MetaBCI to support deep learning-based sleep staging scenarios. This allows new users to quickly and easily develop AI-driven sleep staging models using single-channel or multi-channel data on the MetaBCI platform. Specifically, the sleep staging task is divided into three sections: data, algorithm, and result.    
 
 * Data Section: Provides data acquisition, preprocessing, and storage functionalities.
 * Algorithm Section: Offers single-channel and multi-channel algorithm models.
