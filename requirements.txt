@@ -77,7 +77,7 @@ xlrd~=2.0.1
 openpyxl~=3.1.5
 numexpr~=2.10.1
 python-dateutil~=2.9.0.post0
-pywin32~=306
+pywin32==306
 scikit-learn~=1.5.0
 imagesize~=1.4.1
 snowballstemmer~=2.2.0
